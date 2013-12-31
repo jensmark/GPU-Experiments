@@ -82,7 +82,7 @@ public:
 
 	inline GLint getUniform(std::string var) {
 		GLint loc = glGetUniformLocation(name, var.c_str());
-		assert(loc >= 0);
+		//assert(loc >= 0);
 		return loc;
 	}
 

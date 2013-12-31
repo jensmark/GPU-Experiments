@@ -69,6 +69,10 @@ void AppManager::quit(){
     glfwTerminate();
 }
 
+float E(float rho, float u, float v, float gamma, float p){
+    return 0.5*rho*(u*u+v*v)+p/(gamma-1.0f);
+}
+
 void AppManager::applyInitial(){
     gamma       = 1.4f;
     
@@ -88,7 +92,8 @@ void AppManager::applyInitial(){
         float x     = 0.1f;
         size_t k    = (Nx * i + (size_t)(x*(float)Nx))*4;
         data[k]     = 0.3f;
-        data[k+1]   = 0.3*0.3f;
+        //data[k+1]   = 0.3*0.3f;
+        //data[k+3]   = E(data[k], data[k+1], data[k+2], gamma, 0.3f);
     }
     
     for (size_t i = 0; i < 360; i++) {
@@ -114,7 +119,6 @@ void AppManager::applyInitial(){
     copy->use();
     
     //set uniforms
-    glUniform1f(copy->getUniform("gamma"), gamma);
     glUniform1i(copy->getUniform("QTex"), 0);
     
     glActiveTexture(GL_TEXTURE0);
