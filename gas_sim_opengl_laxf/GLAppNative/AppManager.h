@@ -120,7 +120,6 @@ private:
 	static const unsigned int window_height = 600;
     
     float gamma;
-    float pressure;
     
     // GLFW window handle
     GLFWwindow* window;

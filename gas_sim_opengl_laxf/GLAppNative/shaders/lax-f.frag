@@ -8,10 +8,9 @@ uniform sampler2D QTex;
 uniform float rx;
 uniform float ry;
 uniform float gamma;
-uniform float p;
 
-float E(in float rho, in float u, in float v){
-    return 0.5*rho*(u*u+v*v)+p/(gamma-1.0);
+float P(in vec2 uv, in float E){
+    return (gamma-1.0)*(E-0.5*dot(uv,uv));
 }
 
 vec4 fflux(in vec4 Q){
@@ -23,10 +22,11 @@ vec4 fflux(in vec4 Q){
     if (isnan(v)) {
         v = 0.0;
     }
+    float p = P(vec2(u,v),Q.w);
     return vec4(Q.y,
                 (Q.y*u)+p,
                 Q.z*u,
-                u*(E(Q.x,u,v)+p));
+                u*(Q.w+p));
 }
 vec4 gflux(in vec4 Q){
     float u = Q.y/Q.x;
@@ -37,10 +37,11 @@ vec4 gflux(in vec4 Q){
     if (isnan(v)) {
         v = 0.0;
     }
+    float p = P(vec2(u,v),Q.w);
     return vec4(Q.z,
                 Q.y*v,
                 (Q.z*v)+p,
-                v*(E(Q.x,u,v)+p));
+                v*(Q.w+p));
 }
 
 void main() {

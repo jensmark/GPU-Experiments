@@ -18,8 +18,7 @@ AppManager::AppManager():
     ind(NULL),
     kernel0(NULL),
     kernel1(NULL),
-    gamma(0.0f),
-    pressure(0.0f){
+    gamma(0.0f){
 }
 
 AppManager::~AppManager(){
@@ -71,7 +70,6 @@ void AppManager::quit(){
 }
 
 void AppManager::applyInitial(){
-    pressure    = 1.0f;
     gamma       = 1.4f;
     
     GLuint tex;
@@ -115,6 +113,7 @@ void AppManager::applyInitial(){
     copy->use();
     
     //set uniforms
+    glUniform1f(copy->getUniform("gamma"), gamma);
     glUniform1i(copy->getUniform("QTex"), 0);
     
     glActiveTexture(GL_TEXTURE0);
@@ -145,7 +144,6 @@ void AppManager::runKernel(double dt){
     //set uniforms
     glUniform1f(lax_f->getUniform("rx"), rx);
     glUniform1f(lax_f->getUniform("ry"), ry);
-    glUniform1f(lax_f->getUniform("p"), pressure);
     glUniform1f(lax_f->getUniform("gamma"), gamma);
     glUniform1i(lax_f->getUniform("QTex"), 0);
     
