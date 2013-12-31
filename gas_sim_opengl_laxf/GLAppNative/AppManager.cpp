@@ -87,7 +87,8 @@ void AppManager::applyInitial(){
     for (size_t i = 0; i < Ny; i++) {
         float x     = 0.1f;
         size_t k    = (Nx * i + (size_t)(x*(float)Nx))*4;
-        data[k]     = 1.0f;
+        data[k]     = 0.3f;
+        data[k+1]   = 0.3*0.3f;
     }
     
     for (size_t i = 0; i < 360; i++) {
@@ -98,7 +99,7 @@ void AppManager::applyInitial(){
         size_t y = (size_t)(Y*(float)Nx);
         size_t x = (size_t)(X*(float)Ny);
         
-        data[(Nx * y + x)*4] = 1.0f;
+        data[(Nx * y + x)*4] = 0.1f;
     }
     
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, Nx, Ny,
@@ -187,7 +188,7 @@ void AppManager::runKernel(double dt){
 }
 
 void AppManager::render(){
-    double dt = 0.005;//timer.elapsedAndRestart();
+    double dt = 0.0005;//timer.elapsedAndRestart();
     runKernel(dt);
     
     glViewport(0, 0, window_width*2, window_height*2);

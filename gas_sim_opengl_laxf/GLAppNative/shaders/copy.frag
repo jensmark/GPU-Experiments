@@ -8,8 +8,8 @@ uniform sampler2D QTex;
 uniform float gamma;
 
 float E(in float rho, in vec2 uv){
-    float p = (gamma-1.0)*(0.5*dot(uv,uv));
-    return 0.5*rho*(uv.x*uv.x+uv.y*uv.y)+p/(gamma-1.0);
+    float p = 15;//(gamma-1.0)*(E+0.5*dot(uv,uv));
+    return 0.5*rho*dot(uv,uv)+p/(gamma-1.0);
 }
 
 void main() {
