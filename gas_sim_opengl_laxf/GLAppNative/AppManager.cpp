@@ -88,12 +88,18 @@ void AppManager::applyInitial(){
     // Initialize grid with initial data
     std::vector<GLfloat> data(Nx*Ny*4);
     
+   /* for (size_t i = 0; i < Nx; i++) {
+        for (size_t j = 0; j < Ny; j++) {
+            data[(Nx * j + i)*4] = 0.001f;
+        }
+    }*/
+    
     for (size_t i = 0; i < Ny; i++) {
         float x     = 0.1f;
         size_t k    = (Nx * i + (size_t)(x*(float)Nx))*4;
         data[k]     = 0.3f;
-        //data[k+1]   = 0.3*0.3f;
-        //data[k+3]   = E(data[k], data[k+1], data[k+2], gamma, 0.3f);
+        //data[k+1]   = 0.3*0.5f;
+        //data[k+3]   = 1.0f;//E(data[k], data[k+1], data[k+2], gamma, 10.0f);
     }
     
     for (size_t i = 0; i < 360; i++) {
@@ -104,7 +110,7 @@ void AppManager::applyInitial(){
         size_t y = (size_t)(Y*(float)Nx);
         size_t x = (size_t)(X*(float)Ny);
         
-        data[(Nx * y + x)*4] = 0.1f;
+        data[(Nx * y + x)*4] = 0.5f;
     }
     
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, Nx, Ny,
@@ -192,11 +198,16 @@ void AppManager::runKernel(double dt){
 }
 
 void AppManager::render(){
-    double dt = 0.0005;//timer.elapsedAndRestart();
+    double dt = 0.00000001;//timer.elapsedAndRestart();
     runKernel(dt);
     
     glViewport(0, 0, window_width*2, window_height*2);
     visualize->use();
+    
+    float rx = (float)dt/(1.0f/(float)Nx);
+    float ry = (float)dt/(1.0f/(float)Ny);
+    glUniform1f(visualize->getUniform("rx"), rx);
+    glUniform1f(visualize->getUniform("ry"), ry);
     
     glUniform1i(visualize->getUniform("QTex"), 0);
     glActiveTexture(GL_TEXTURE0);
