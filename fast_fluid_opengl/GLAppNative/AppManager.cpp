@@ -11,14 +11,12 @@
 #include <glm/glm.hpp>
 
 AppManager::AppManager():
-    lax_f(NULL),
     visualize(NULL),
     copy(NULL),
     vert(NULL),
     ind(NULL),
     kernel0(NULL),
-    kernel1(NULL),
-    gamma(0.0f){
+    kernel1(NULL){
 }
 
 AppManager::~AppManager(){
@@ -36,8 +34,6 @@ void AppManager::init(){
     createFBO();
     createProgram();
     createVAO();
-    
-    applyInitial();
 }
 
 void AppManager::begin(){
@@ -57,7 +53,6 @@ void AppManager::begin(){
 }
 
 void AppManager::quit(){
-    delete lax_f;
     delete visualize;
     delete copy;
     delete vert;
@@ -69,147 +64,48 @@ void AppManager::quit(){
     glfwTerminate();
 }
 
-float E(float rho, float u, float v, float gamma, float p){
-    return 0.5*rho*(u*u+v*v)+p/(gamma-1.0f);
-}
-
-void AppManager::applyInitial(){
-    gamma       = 1.4f;
-    
-    GLuint tex;
-    glGenTextures(1, &tex);
-    
-    glBindTexture(GL_TEXTURE_2D, tex);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    
-    // Initialize grid with initial data
-    std::vector<GLfloat> data(Nx*Ny*4);
-    
-   /* for (size_t i = 0; i < Nx; i++) {
-        for (size_t j = 0; j < Ny; j++) {
-            data[(Nx * j + i)*4] = 0.001f;
-        }
-    }*/
-    
-    for (size_t i = 0; i < Ny; i++) {
-        float x     = 0.1f;
-        size_t k    = (Nx * i + (size_t)(x*(float)Nx))*4;
-        data[k]     = 0.3f;
-        data[k+1]   = 0.3*0.5f;
-        data[k+3]   = E(data[k], data[k+1], data[k+2], gamma, 10.0f);
-    }
-    
-    for (size_t i = 0; i < 360; i++) {
-        float rad   = glm::radians((float)i);
-        float X = 0.5 + (0.2 * glm::sin(rad));
-        float Y = 0.5 + (0.2 * glm::cos(rad));
-        
-        size_t y = (size_t)(Y*(float)Nx);
-        size_t x = (size_t)(X*(float)Ny);
-        
-        data[(Nx * y + x)*4] = 0.5f;
-    }
-    
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, Nx, Ny,
-                 0, GL_RGBA, GL_FLOAT, data.data());
-    
-    CHECK_GL_ERRORS();
-    
-    // Render initial grid to kernel0
-    kernel0->bind();
-    glViewport(0, 0, Nx, Ny);
-    
-    copy->use();
-    
-    //set uniforms
-    glUniform1i(copy->getUniform("QTex"), 0);
-    
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, tex);
-    
-    glBindVertexArray(vao);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, NULL);
-    glBindVertexArray(0);
-    
-    copy->disuse();
-    kernel0->unbind();
-    
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glDeleteTextures(1, &tex);
-    
+void AppManager::advect(double dt){
     CHECK_GL_ERRORS();
 }
 
-void AppManager::runKernel(double dt){
-    kernel1->bind();
-    glViewport(0, 0, Nx, Ny);
-    
-    lax_f->use();
-    
-    float rx = (float)dt/(1.0f/(float)Nx);
-    float ry = (float)dt/(1.0f/(float)Ny);
-    
-    //set uniforms
-    glUniform1f(lax_f->getUniform("rx"), (float)dt/rx);
-    glUniform1f(lax_f->getUniform("ry"), (float)dt/ry);
-    glUniform1f(lax_f->getUniform("gamma"), gamma);
-    glUniform1i(lax_f->getUniform("QTex"), 0);
-    
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, kernel0->getTexture());
-    
-    glBindVertexArray(vao);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, NULL);
-    glBindVertexArray(0);
-    
-    lax_f->disuse();
-    kernel1->unbind();
-  
-    // Flip kernels for next iteration
-    TextureFBO* temp = kernel0;
-    kernel0 = kernel1;
-    kernel1 = temp;
-   
+void AppManager::diffuse(double dt){
     CHECK_GL_ERRORS();
+}
+
+void AppManager::addForce(double dt){
+    CHECK_GL_ERRORS();
+}
+
+void AppManager::compPressure(double dt){
+    CHECK_GL_ERRORS();
+}
+
+void AppManager::subPressureGrad(double dt){
+    CHECK_GL_ERRORS();
+}
+
+void AppManager::swap(TextureFBO* a, TextureFBO* b){
     
-    /* DOWNLOAD RESULTS */
-    
-    glBindTexture(GL_TEXTURE_2D, kernel0->getTexture());
-    
-    std::vector<GLfloat> data(Nx*Ny*4);
-    glGetTexImage(GL_TEXTURE_2D,0,GL_RGBA,GL_FLOAT,&data[0]);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    
-    float max = 0;
-    for (size_t x = 0; x < Nx; x++) {
-        for (size_t y = 0; y < Ny; y++) {
-            max = glm::max(max,data[(Nx * y + x)*4]);
-        }
-    }
-    
-    std::cout << max << std::endl;
-    
-    /* DOWNLOAD END */
+}
+
+void AppManager::runSimulation(double dt){
+    advect(dt);
+    diffuse(dt);
+    addForce(dt);
+    compPressure(dt);
+    subPressureGrad(dt);
     
     CHECK_GL_ERRORS();
 }
 
 void AppManager::render(){
-    double dt = 0.00000001;//timer.elapsedAndRestart();
-    runKernel(dt);
+    double dt = 0.0005;//timer.elapsedAndRestart();
+    runSimulation(dt);
     
     glViewport(0, 0, window_width*2, window_height*2);
     visualize->use();
     
-    float rx = (float)dt/(1.0f/(float)Nx);
-    float ry = (float)dt/(1.0f/(float)Ny);
-    glUniform1f(visualize->getUniform("rx"), rx);
-    glUniform1f(visualize->getUniform("ry"), ry);
-    
-    glUniform1i(visualize->getUniform("QTex"), 0);
+    glUniform1i(visualize->getUniform("tex"), 0);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, kernel0->getTexture());
     
@@ -272,7 +168,6 @@ void AppManager::setOpenGLStates(){
 }
 
 void AppManager::createProgram(){
-    lax_f       = new Program("kernel.vert","lax-f.frag");
     visualize   = new Program("kernel.vert","visualize.frag");
     copy        = new Program("kernel.vert","copy.frag");
     
