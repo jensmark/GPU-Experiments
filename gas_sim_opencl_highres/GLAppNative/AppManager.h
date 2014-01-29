@@ -135,6 +135,8 @@ private:
     static const unsigned int Nx            = 264;
     static const unsigned int Ny            = 264;
     
+    static const unsigned int N_RK          = 2;
+    
     static const unsigned int window_width  = 800;
 	static const unsigned int window_height = 600;
     
@@ -155,6 +157,22 @@ private:
     BO<GL_ELEMENT_ARRAY_BUFFER>* ind;
     
     GLuint vao;
+    
+    CLUtils::Program*   compute_program;
+    cl_kernel           compute_boundary;
+    cl_kernel           compute_reconstruct;
+    cl_kernel           evaluate_flux;
+    cl_kernel           compute_RK;
+    
+    
+    CLUtils::MO<CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR>*  Q_set[N_RK+1];
+    CLUtils::MO<CL_MEM_READ_WRITE>*                         Sx_set;
+    CLUtils::MO<CL_MEM_READ_WRITE>*                         Sy_set;
+    CLUtils::MO<CL_MEM_READ_WRITE>*                         F_set;
+    CLUtils::MO<CL_MEM_READ_WRITE>*                         G_set;
+    
+    CLUtils::ImageBuffer<CL_MEM_READ_WRITE>*                R_tex;
+    
 };
 
 #endif

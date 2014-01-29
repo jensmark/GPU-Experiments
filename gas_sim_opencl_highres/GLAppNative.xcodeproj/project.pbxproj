@@ -57,6 +57,7 @@
 		8200F5771897F7E1003F1318 /* MO.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = MO.hpp; path = CLUtils/MO.hpp; sourceTree = "<group>"; };
 		8200F578189828D3003F1318 /* CLProgram.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = CLProgram.hpp; path = CLUtils/CLProgram.hpp; sourceTree = "<group>"; };
 		8200F57918983C93003F1318 /* ImageBuffer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = ImageBuffer.hpp; path = CLUtils/ImageBuffer.hpp; sourceTree = "<group>"; };
+		8200F57A189852F9003F1318 /* compute_program.cl */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.opencl; name = compute_program.cl; path = kernels/compute_program.cl; sourceTree = "<group>"; };
 		820399A9186F1FBF000A0A55 /* GLAppNative */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = GLAppNative; sourceTree = BUILT_PRODUCTS_DIR; };
 		820399AC186F1FBF000A0A55 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		820399B5186F1FE7000A0A55 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
@@ -117,6 +118,7 @@
 		8200F5751897EAB4003F1318 /* kernels */ = {
 			isa = PBXGroup;
 			children = (
+				8200F57A189852F9003F1318 /* compute_program.cl */,
 			);
 			name = kernels;
 			sourceTree = "<group>";

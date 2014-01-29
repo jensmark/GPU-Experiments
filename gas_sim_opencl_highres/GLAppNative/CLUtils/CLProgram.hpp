@@ -47,7 +47,7 @@ namespace CLUtils {
     
     class Program {
     public:
-        Program(CLcontext& context, std::string file) {
+        Program(CLcontext& context, std::string file, std::string kernel) {
             cl_int err;
             
             const char* temp = readFile(file).c_str();
@@ -58,6 +58,11 @@ namespace CLUtils {
             }
             
             compile(context.device);
+            createKernel(kernel);
+        }
+        
+        cl_kernel& getKernel(){
+            return kernel;
         }
 
     private:
@@ -97,6 +102,7 @@ namespace CLUtils {
             return kernel;
         }
         
+        cl_kernel kernel;
         cl_program prog;
     };
     
