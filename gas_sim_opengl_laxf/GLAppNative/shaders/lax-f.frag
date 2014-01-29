@@ -14,14 +14,14 @@ float P(in vec2 uv, in float E){
 }
 
 vec4 fflux(in vec4 Q){
-    float u = Q.y/Q.x;
-    if (isnan(u) || isinf(u)) {
-        u = 0.0;
+    float u = 0.0;
+    float v = 0.0;
+    
+    if(Q.x != 0.0){
+        u = Q.y/Q.x;
+        v = Q.z/Q.x;
     }
-    float v = Q.z/Q.x;
-    if (isnan(v) || isinf(v)) {
-        v = 0.0;
-    }
+    
     float p = P(vec2(u,v),Q.w);
     return vec4(Q.y,
                 (Q.y*u)+p,
@@ -29,14 +29,14 @@ vec4 fflux(in vec4 Q){
                 u*(Q.w+p));
 }
 vec4 gflux(in vec4 Q){
-    float u = Q.y/Q.x;
-    if (isnan(u) || isinf(u)) {
-        u = 0.0;
+    float u = 0.0;
+    float v = 0.0;
+    
+    if(Q.x != 0.0){
+        u = Q.y/Q.x;
+        v = Q.z/Q.x;
     }
-    float v = Q.z/Q.x;
-    if (isnan(v) || isinf(v)) {
-        v = 0.0;
-    }
+    
     float p = P(vec2(u,v),Q.w);
     return vec4(Q.z,
                 Q.y*v,

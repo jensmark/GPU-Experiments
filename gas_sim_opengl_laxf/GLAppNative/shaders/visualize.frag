@@ -10,12 +10,9 @@ uniform float ry;
 uniform sampler2D QTex;
 
 void main() {
-    float QE = textureOffset(QTex, uv, ivec2(1,0)).x;
-    float QW = textureOffset(QTex, uv, ivec2(-1,0)).x;
-    float QN = textureOffset(QTex, uv, ivec2(0,1)).x;
-    float QS = textureOffset(QTex, uv, ivec2(0,-1)).x;
-    
-    float rho = ((QN-QS)/ry)+((QE-QW)/rx);
-    float schlieren = pow((1.0-abs(rho)/1.0),15);
+    float rho   = texture(QTex, uv).x;
+    float grad  = ((textureOffset(QTex,uv,ivec2(1,0)).x-rho)/rx)+
+                ((textureOffset(QTex,uv,ivec2(0,1)).x-rho)/ry);
+    float schlieren = pow((1.0-abs(grad)/1.0),15);
     color = vec4(schlieren);
 }

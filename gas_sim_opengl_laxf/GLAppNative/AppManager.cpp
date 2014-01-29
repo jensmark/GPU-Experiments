@@ -88,31 +88,34 @@ void AppManager::applyInitial(){
     // Initialize grid with initial data
     std::vector<GLfloat> data(Nx*Ny*4);
     
-   /* for (size_t i = 0; i < Nx; i++) {
+    for (size_t i = 0; i < Nx; i++) {
         for (size_t j = 0; j < Ny; j++) {
-            data[(Nx * j + i)*4] = 0.001f;
+            // temp
+            size_t k = (Nx * j + i)*4;
+            data[k] = 0.0001f;
+            
+            // populate circle
+            const glm::vec2 center = glm::vec2(0.5f,0.5f);
+            const float radius = 0.2f;
+            
+            if (glm::distance(glm::vec2((float)i/(float)Nx,(float)j/(float)Ny), center) <= radius) {
+                data[k] = 0.5f;
+            }
+            data[k+3]   = E(data[k], data[k+1], data[k+2], gamma, 1.0f);
         }
-    }*/
+    }
     
+    // initial shockwave
+    /*
     for (size_t i = 0; i < Ny; i++) {
         float x     = 0.1f;
         size_t k    = (Nx * i + (size_t)(x*(float)Nx))*4;
-        data[k]     = 0.3f;
-        data[k+1]   = 0.3*0.5f;
-        data[k+3]   = E(data[k], data[k+1], data[k+2], gamma, 10.0f);
+        data[k]     = 1.0f;
+        data[k+1]   = 1.0*1.0f;
+        data[k+3]   = E(data[k], data[k+1], data[k+2], gamma, 1.0f);
     }
-    
-    for (size_t i = 0; i < 360; i++) {
-        float rad   = glm::radians((float)i);
-        float X = 0.5 + (0.2 * glm::sin(rad));
-        float Y = 0.5 + (0.2 * glm::cos(rad));
-        
-        size_t y = (size_t)(Y*(float)Nx);
-        size_t x = (size_t)(X*(float)Ny);
-        
-        data[(Nx * y + x)*4] = 0.5f;
-    }
-    
+     */
+     
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, Nx, Ny,
                  0, GL_RGBA, GL_FLOAT, data.data());
     
@@ -183,7 +186,7 @@ void AppManager::runKernel(double dt){
     glGetTexImage(GL_TEXTURE_2D,0,GL_RGBA,GL_FLOAT,&data[0]);
     glBindTexture(GL_TEXTURE_2D, 0);
     
-    float max = 0;
+    float max = 0.0;
     for (size_t x = 0; x < Nx; x++) {
         for (size_t y = 0; y < Ny; y++) {
             max = glm::max(max,data[(Nx * y + x)*4]);
@@ -204,8 +207,9 @@ void AppManager::render(){
     glViewport(0, 0, window_width*2, window_height*2);
     visualize->use();
     
-    float rx = (float)dt/(1.0f/(float)Nx);
-    float ry = (float)dt/(1.0f/(float)Ny);
+    float rx = (1.0f/(float)Nx);
+    float ry = (1.0f/(float)Ny);
+    
     glUniform1f(visualize->getUniform("rx"), rx);
     glUniform1f(visualize->getUniform("ry"), ry);
     
