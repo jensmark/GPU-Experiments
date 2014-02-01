@@ -92,29 +92,43 @@ void AppManager::applyInitial(){
         for (size_t j = 0; j < Ny; j++) {
             // temp
             size_t k = (Nx * j + i)*4;
-            data[k] = 0.0001f;
+            data[k] = 0.1f;
             
             // populate circle
-            const glm::vec2 center = glm::vec2(0.5f,0.5f);
+            const glm::vec2 center = glm::vec2(0.3f,0.5f);
             const float radius = 0.2f;
             
             if (glm::distance(glm::vec2((float)i/(float)Nx,(float)j/(float)Ny), center) <= radius) {
-                data[k] = 0.5f;
+                data[k]     = 1.0f;
+                //data[k+1]   = 1.0f*-10.0f;
+                //data[k+2]   = 0.8f*10.0f;
+                data[k+3]   = E(data[k], data[k+1], data[k+2], gamma, 1.0f);
             }
-            data[k+3]   = E(data[k], data[k+1], data[k+2], gamma, 1.0f);
+            
+            /*glm::vec2 p((float)i/(float)Nx,(float)j/(float)Ny);
+            if (p.x < center.x + radius &&
+                p.x > center.x - radius &&
+                p.y < center.y + radius &&
+                p.y > center.y - radius){
+                data[k] = 0.8f;
+                //data[k+1]   = 0.8*-10.0f;
+                data[k+3]   = E(data[k], data[k+1], data[k+2], gamma, 100.0f);
+            }*/
+            
+            else{
+                data[k+3]   = E(data[k], data[k+1], data[k+2], gamma, 0.1f);
+            }
         }
     }
     
     // initial shockwave
-    /*
     for (size_t i = 0; i < Ny; i++) {
-        float x     = 0.1f;
+        float x     = 0.0f;
         size_t k    = (Nx * i + (size_t)(x*(float)Nx))*4;
         data[k]     = 1.0f;
-        data[k+1]   = 1.0*1.0f;
-        data[k+3]   = E(data[k], data[k+1], data[k+2], gamma, 1.0f);
+        data[k+1]   = data[k]*10.0f;
+        data[k+3]   = E(data[k], data[k+1], data[k+2], gamma, 1000.0f);
     }
-     */
      
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, Nx, Ny,
                  0, GL_RGBA, GL_FLOAT, data.data());
@@ -156,8 +170,8 @@ void AppManager::runKernel(double dt){
     float ry = (float)dt/(1.0f/(float)Ny);
     
     //set uniforms
-    glUniform1f(lax_f->getUniform("rx"), (float)dt/rx);
-    glUniform1f(lax_f->getUniform("ry"), (float)dt/ry);
+    glUniform1f(lax_f->getUniform("rx"), rx);
+    glUniform1f(lax_f->getUniform("ry"), ry);
     glUniform1f(lax_f->getUniform("gamma"), gamma);
     glUniform1i(lax_f->getUniform("QTex"), 0);
     
@@ -201,7 +215,7 @@ void AppManager::runKernel(double dt){
 }
 
 void AppManager::render(){
-    double dt = 0.00000001;//timer.elapsedAndRestart();
+    double dt = 0.00002;//timer.elapsedAndRestart();
     runKernel(dt);
     
     glViewport(0, 0, window_width*2, window_height*2);
