@@ -10,16 +10,16 @@ uniform float ry;
 uniform sampler2D QTex;
 
 void main() {
-    float rho   = texture(QTex, uv).x;
+    float rhoN  = textureOffset(QTex, uv, ivec2(0,1)).x;
+    float rhoS  = textureOffset(QTex, uv, ivec2(0,-1)).x;
+    float rhoE  = textureOffset(QTex, uv, ivec2(1,0)).x;
+    float rhoW  = textureOffset(QTex, uv, ivec2(-1,0)).x;
     
-    vec2 norm   = vec2((rho-textureOffset(QTex,uv,ivec2(1,0)).x)/rx,
-                                 (rho-textureOffset(QTex,uv,ivec2(0,1)).x)/ry);
+    vec2 norm   = vec2((rhoW-rhoE)/2.0*rx,
+                       (rhoS-rhoN)/2.0*ry);
     float grad  = length(norm);
-    float schlieren = pow((1.0-abs(grad)/150.0),15);
+    float schlieren = pow((1.0-abs(grad)/1e-5f),15.0f);
     
-    color = vec4(schlieren);
-    //color = vec4(abs(norm), 0.0,1.0);
-    //color = vec4(rho);
-    //color = vec4(texture(QTex, uv).yzw, 1.0);
-    //color = texture(QTex, uv);
+    color = vec4(vec3(schlieren),1.0);
+    //color   = abs(vec4(texture(QTex,uv)));
 }

@@ -17,10 +17,10 @@ vec4 fflux(in vec4 Q){
     float u = 0.0;
     float v = 0.0;
     
-    if(Q.x != 0.0){
+    //if(Q.x != 0.0){
         u = Q.y/Q.x;
         v = Q.z/Q.x;
-    }
+    //}
     
     float p = P(vec2(u,v),Q.w);
     return vec4(Q.y,
@@ -32,10 +32,10 @@ vec4 gflux(in vec4 Q){
     float u = 0.0;
     float v = 0.0;
     
-    if(Q.x != 0.0){
+    //if(Q.x != 0.0){
         u = Q.y/Q.x;
         v = Q.z/Q.x;
-    }
+    //}
     
     float p = P(vec2(u,v),Q.w);
     return vec4(Q.z,

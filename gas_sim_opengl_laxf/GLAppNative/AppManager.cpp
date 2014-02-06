@@ -92,32 +92,16 @@ void AppManager::applyInitial(){
         for (size_t j = 0; j < Ny; j++) {
             // temp
             size_t k = (Nx * j + i)*4;
-            data[k] = 0.1f;
+            data[k] = 0.000001f;
             
             // populate circle
             const glm::vec2 center = glm::vec2(0.3f,0.5f);
             const float radius = 0.2f;
             
             if (glm::distance(glm::vec2((float)i/(float)Nx,(float)j/(float)Ny), center) <= radius) {
-                data[k]     = 1.0f;
-                //data[k+1]   = 1.0f*-10.0f;
-                //data[k+2]   = 0.8f*10.0f;
-                data[k+3]   = E(data[k], data[k+1], data[k+2], gamma, 1.0f);
+                data[k]     = 0.1f;
             }
-            
-            /*glm::vec2 p((float)i/(float)Nx,(float)j/(float)Ny);
-            if (p.x < center.x + radius &&
-                p.x > center.x - radius &&
-                p.y < center.y + radius &&
-                p.y > center.y - radius){
-                data[k] = 0.8f;
-                //data[k+1]   = 0.8*-10.0f;
-                data[k+3]   = E(data[k], data[k+1], data[k+2], gamma, 100.0f);
-            }*/
-            
-            else{
-                data[k+3]   = E(data[k], data[k+1], data[k+2], gamma, 0.1f);
-            }
+            data[k+3]   = E(data[k], 0.0f, 0.0f, gamma, 0.000001f);
         }
     }
     
@@ -126,10 +110,120 @@ void AppManager::applyInitial(){
         float x     = 0.0f;
         size_t k    = (Nx * i + (size_t)(x*(float)Nx))*4;
         data[k]     = 1.0f;
-        data[k+1]   = data[k]*10.0f;
-        data[k+3]   = E(data[k], data[k+1], data[k+2], gamma, 1000.0f);
+        data[k+1]   = data[k]*1.0f;
+        data[k+3]   = E(data[k], 1.0f, 0.0f, gamma, 10.0f);
     }
+    
      
+    // 2D Riemann condition
+    //glm::vec4 Q[4];
+    
+    /*
+    //
+    // Riemann problem 1
+    //
+    Q[0].x = 1.0f;
+    Q[0].y = 0.0f;
+    Q[0].z = 0.0f;
+    Q[0].w = E(1.0f, 0.0f, 0.0f, gamma, 1.0f);
+    
+    Q[1].x = 0.5197f;
+    Q[1].y = 0.5197f*-0.7259f;
+    Q[1].z = 0.0f;
+    Q[1].w = E(0.5197f, -0.7259f, 0.0f, gamma, 0.4f);
+    
+    Q[2].x = 0.1072f;
+    Q[2].y = 0.1072f*-0.7259f;
+    Q[2].z = 0.1072f*-1.4045f;
+    Q[2].w = E(0.1072f, -0.7259, -1.4045, gamma, 0.0439f);
+    
+    Q[3].x = 0.2579f;
+    Q[3].y = 0.0f;
+    Q[3].z = 0.2579f*-1.4045f;
+    Q[3].w = E(0.2579f, 0.0f, -1.4045f, gamma, 0.15f);
+    */
+   
+    /*
+    //
+    // Riemann problem 2
+    //
+    Q[0].x = 1.0f;
+    Q[0].y = 0.0f;
+    Q[0].z = 0.0f;
+    Q[0].w = E(1.0f, 0.0f, 0.0f, gamma, 1.0f);
+    
+    Q[1].x = 0.5197f;
+    Q[1].y = 0.5197f*-0.7259f;
+    Q[1].z = 0.0f;
+    Q[1].w = E(0.5197f, -0.7269f, 0.0f, gamma, 0.4f);
+    
+    Q[2].x = 1.0f;
+    Q[2].y = 1.0f*-0.7269f;
+    Q[2].z = 1.0f*-0.7269f;
+    Q[2].w = E(1.0f, -0.7269f, -0.7269f, gamma, 1.0f);
+    
+    Q[3].x = 0.5197f;
+    Q[3].y = 0.0f;
+    Q[3].z = 0.5197f*-0.7259f;
+    Q[3].w = E(0.5197f, 0.0f, -0.7269f, gamma, 0.4f);
+     */
+    
+    //
+    // Riemann problem 3
+    //
+    /*Q[0].x = 1.5f;
+    Q[0].y = 0.0f;
+    Q[0].z = 0.0f;
+    Q[0].w = E(1.5f, 0.0f, 0.0f, gamma, 1.5f);
+    
+    Q[1].x = 0.5323f;
+    Q[1].y = 0.5323f*1.206f;
+    Q[1].z = 0.0f;
+    Q[1].w = E(0.5323f, 1.206f, 0.0f, gamma, 0.3f);
+    
+    Q[2].x = 0.138f;
+    Q[2].y = 0.138f*1.206f;
+    Q[2].z = 0.138f*1.206f;
+    Q[2].w = E(0.138f, 1.206f, 1.206f, gamma, 0.028f);
+    
+    Q[3].x = 0.5323f;
+    Q[3].y = 0.0f;
+    Q[3].z = 0.5323f*1.206f;
+    Q[3].w = E(0.5323f, 0.0f, 1.206f, gamma, 0.3f);
+    */
+    /*
+    for (size_t i = 0; i < Nx; i++) {
+        for (size_t j = 0; j < Ny; j++) {
+            size_t k = (Nx * j + i)*4;
+            glm::vec2 coord((float)i/(float)Nx,(float)j/(float)Ny);
+            
+            if (coord.x > 0.5f && coord.y > 0.5f) {
+                data[k]     = Q[0].x;
+                data[k+1]   = Q[0].y;
+                data[k+2]   = Q[0].z;
+                data[k+3]   = Q[0].w;
+            }
+            else if (coord.x < 0.5f && coord.y > 0.5f){
+                data[k]     = Q[1].x;
+                data[k+1]   = Q[1].y;
+                data[k+2]   = Q[1].z;
+                data[k+3]   = Q[1].w;
+            }
+            else if (coord.x < 0.5f && coord.y < 0.5f){
+                data[k]     = Q[2].x;
+                data[k+1]   = Q[2].y;
+                data[k+2]   = Q[2].z;
+                data[k+3]   = Q[2].w;
+            }
+            else if (coord.x > 0.5f && coord.y < 0.5f){
+                data[k]     = Q[3].x;
+                data[k+1]   = Q[3].y;
+                data[k+2]   = Q[3].z;
+                data[k+3]   = Q[3].w;
+            }
+        }
+    }
+    */
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, Nx, Ny,
                  0, GL_RGBA, GL_FLOAT, data.data());
     
@@ -215,7 +309,7 @@ void AppManager::runKernel(double dt){
 }
 
 void AppManager::render(){
-    double dt = 0.00002;//timer.elapsedAndRestart();
+    double dt = 1e-45f;//timer.elapsedAndRestart();
     runKernel(dt);
     
     glViewport(0, 0, window_width*2, window_height*2);
