@@ -41,17 +41,11 @@ vec4 gflux(in vec4 Q){
                 v*(Q.w+p));
 }
 
-vec4 xflux(in float k){
-    vec4 Q      = texture(QTex, uv);
-    vec4 Sx     = texture(SxTex, uv);
-    vec4 Sy     = texture(SyTex, uv);
+vec4 xflux(in float k, in vec4 Q, in vec4 Q1, in vec4 Sx, in vec4 Sy, in vec4 Sxp, in vec4 Syp){
     vec4 QL     = Q + Sx*0.5;
     vec4 QLp    = Q + Sx*0.5 + Sy*k;
     vec4 QLm    = Q + Sx*0.5 - Sy*k;
     
-    vec4 Q1     = textureOffset(QTex, uv, ivec2(1,0));
-    vec4 Sxp    = textureOffset(SxTex, uv, ivec2(1,0));
-    vec4 Syp    = textureOffset(SyTex, uv, ivec2(1,0));
     vec4 QR     = Q1 + Sxp*0.5;
     vec4 QRp    = Q1 + Sxp*0.5 + Syp*k;
     vec4 QRm    = Q1 + Sxp*0.5 - Syp*k;
@@ -69,20 +63,14 @@ vec4 xflux(in float k){
     return mix(Fp, Fm, 0.5);
 }
 
-vec4 yflux(in float k){
-    vec4 Q      = texture(QTex, uv);
-    vec4 Sx     = texture(SxTex, uv);
-    vec4 Sy     = texture(SyTex, uv);
-    vec4 QL     = Q + Sx*0.5;
-    vec4 QLp    = Q + Sx*0.5 + Sy*k;
-    vec4 QLm    = Q + Sx*0.5 - Sy*k;
+vec4 yflux(in float k, in vec4 Q, in vec4 Q1, in vec4 Sx, in vec4 Sy, in vec4 Sxp, in vec4 Syp){
+    vec4 QL     = Q + Sy*0.5;
+    vec4 QLp    = Q + Sy*0.5 + Sx*k;
+    vec4 QLm    = Q + Sy*0.5 - Sx*k;
     
-    vec4 Q1     = textureOffset(QTex, uv, ivec2(0,1));
-    vec4 Sxp    = textureOffset(SxTex, uv, ivec2(0,1));
-    vec4 Syp    = textureOffset(SyTex, uv, ivec2(0,1));
-    vec4 QR     = Q1 + Sxp*0.5;
-    vec4 QRp    = Q1 + Sxp*0.5 + Syp*k;
-    vec4 QRm    = Q1 + Sxp*0.5 - Syp*k;
+    vec4 QR     = Q1 + Syp*0.5;
+    vec4 QRp    = Q1 + Syp*0.5 + Sxp*k;
+    vec4 QRm    = Q1 + Syp*0.5 - Sxp*k;
     
     float c, ap, am;
     c           = sqrt(gamma*QL.x*P(QL));
@@ -100,7 +88,19 @@ vec4 yflux(in float k){
 
 void main(){
     const float k = 0.2886751346;
+    vec4 Q      = texture(QTex, uv);
+    vec4 Sx     = texture(SxTex, uv);
+    vec4 Sy     = texture(SyTex, uv);
     
-    color0 = xflux(k);
-    color1 = yflux(k);
+    vec4 Q1     = textureOffset(QTex, uv, ivec2(1,0));
+    vec4 Sxp    = textureOffset(SxTex, uv, ivec2(1,0));
+    vec4 Syp    = textureOffset(SyTex, uv, ivec2(1,0));
+    
+    color0 = xflux(k, Q, Q1, Sx, Sy, Sxp, Syp);
+    
+    Q1     = textureOffset(QTex, uv, ivec2(0,1));
+    Sxp    = textureOffset(SxTex, uv, ivec2(0,1));
+    Syp    = textureOffset(SyTex, uv, ivec2(0,1));
+    
+    color1 = yflux(k, Q, Q1, Sx, Sy, Sxp, Syp);
 }
