@@ -18,7 +18,7 @@ void main() {
     vec2 norm   = vec2((rhoW-rhoE)/2.0*dx,
                        (rhoS-rhoN)/2.0*dy);
     float grad  = length(norm);
-    float schlieren = pow((1.0-abs(grad)/1e-3f),15.0f);
+    float schlieren = pow((1.0-abs(grad)/1e-2f),15.0f);
     
     color = vec4(vec3(schlieren),1.0);
     //color   = texture(QTex, uv);

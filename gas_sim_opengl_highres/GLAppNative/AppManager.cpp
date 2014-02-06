@@ -95,12 +95,12 @@ void AppManager::applyInitial(){
     // Initialize grid with initial data
     std::vector<GLfloat> data(Nx*Ny*4);
     
-    
+    /*
     for (size_t i = 0; i < Nx; i++) {
         for (size_t j = 0; j < Ny; j++) {
             // temp
             size_t k = (Nx * j + i)*4;
-            data[k] = 0.1f;
+            data[k] = 0.01f;
             
             // populate circle
             const glm::vec2 center = glm::vec2(0.3f,0.5f);
@@ -112,7 +112,7 @@ void AppManager::applyInitial(){
             }
             
             else{
-                data[k+3]   = E(data[k], 0.0f, 0.0f, gamma, 0.1f);
+                data[k+3]   = E(data[k], 0.0f, 0.0f, gamma, 0.01f);
             }
         }
     }
@@ -122,15 +122,15 @@ void AppManager::applyInitial(){
         float x     = 0.0f;
         size_t k    = (Nx * i + (size_t)(x*(float)Nx))*4;
         data[k]     = 1.0f;
-        data[k+1]   = data[k]*10.0f;
-        data[k+3]   = E(data[k], 1.0f, 0.0f, gamma, 1000.0f);
+        data[k+1]   = data[k]*1.0f;
+        data[k+3]   = E(data[k], 1.0f, 0.0f, gamma, 1.0f);
     }
-    
+    */
     
     
     // 2D Riemann condition
-    //glm::vec4 Q[4];
-    /*
+    glm::vec4 Q[4];
+    
     //
     // Riemann problem 1
     //
@@ -142,17 +142,17 @@ void AppManager::applyInitial(){
     Q[1].x = 0.5197f;
     Q[1].y = 0.5197f*-0.7259f;
     Q[1].z = 0.0f;
-    Q[1].w = E(0.5197f, -0.7259f, 0.0f, gamma, 0.4f);
+    Q[1].w = E(0.5197f, -0.7269f, 0.0f, gamma, 0.4f);
     
-    Q[2].x = 0.1072f;
-    Q[2].y = 0.1072f*-0.7259f;
-    Q[2].z = 0.1072f*-1.4045f;
-    Q[2].w = E(0.1072f, -0.7259, -1.4045, gamma, 0.0439f);
+    Q[2].x = 1.0f;
+    Q[2].y = 1.0f*-0.7269f;
+    Q[2].z = 1.0f*-0.7269f;
+    Q[2].w = E(1.0f, -0.7269f, -0.7269f, gamma, 1.0f);
     
-    Q[3].x = 0.2579f;
+    Q[3].x = 0.5197f;
     Q[3].y = 0.0f;
-    Q[3].z = 0.2579f*-1.4045f;
-    Q[3].w = E(0.2579f, 0.0f, -1.4045f, gamma, 0.15f);
+    Q[3].z = 0.5197f*-0.7259f;
+    Q[3].w = E(0.5197f, 0.0f, -0.7269f, gamma, 0.4f);
 
     
     
@@ -187,7 +187,7 @@ void AppManager::applyInitial(){
             }
         }
     }
-    */
+    
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, Nx, Ny,
                  0, GL_RGBA, GL_FLOAT, data.data());
     
