@@ -7,9 +7,6 @@ in vec2 uv;
 
 uniform sampler2D QTex;
 
-uniform float dx;
-uniform float dy;
-
 vec4 minmod(in vec4 a, in vec4 b){
     vec4 res = min(abs(a),abs(b));
     return res*(sign(a)+sign(b))*0.5;

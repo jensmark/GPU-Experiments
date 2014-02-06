@@ -57,17 +57,22 @@ private:
     /**
 	 * Simulation step
 	 */
-    void reconstruct();
+    void reconstruct(TextureFBO* Qn);
     
     /**
 	 * Simulation step
 	 */
-    void evaluateFluxes();
+    void evaluateFluxes(TextureFBO* Qn);
     
     /**
 	 * Simulation step
 	 */
-    void computeRK(glm::vec2 c);
+    void computeRK(size_t n, float dt);
+    
+    /**
+	 * Copy texture to framebuffer texture
+	 */
+    void copyTexture(GLint source, TextureFBO* dest);
     
     /**
 	 * Function that runs sim kernel
@@ -146,6 +151,9 @@ private:
     Timer timer;
     
     Program* visualize;
+    Program* runge_kutta;
+    Program* bilinear_recon;
+    Program* flux_evaluator;
     Program* copy;
     
     BO<GL_ARRAY_BUFFER>* vert;

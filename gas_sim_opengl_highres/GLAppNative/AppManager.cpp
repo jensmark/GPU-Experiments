@@ -9,6 +9,7 @@
 #include "AppManager.h"
 #include <vector>
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 AppManager::AppManager():
     //lax_f(NULL),
@@ -16,8 +17,6 @@ AppManager::AppManager():
     copy(NULL),
     vert(NULL),
     ind(NULL),
-    kernel0(NULL),
-    kernel1(NULL),
     gamma(0.0f),
     pressure(0.0f){
 }
@@ -62,13 +61,20 @@ void AppManager::quit(){
     delete copy;
     delete vert;
     delete ind;
-    delete kernel0;
-    delete kernel1;
+    
+    delete runge_kutta;
+    delete bilinear_recon;
+    delete flux_evaluator;
+    
+    for (size_t i = 0; i < 3; i++) {
+        delete kernelRK[i];
+    }
+    delete reconstructKernel;
+    delete fluxKernel;
     
     glfwDestroyWindow(window);
     glfwTerminate();
 }
-
 
 float E(float rho, float u, float v, float gamma, float p){
     return 0.5*rho*(u*u+v*v)+p/(gamma-1.0f);
@@ -89,32 +95,196 @@ void AppManager::applyInitial(){
     // Initialize grid with initial data
     std::vector<GLfloat> data(Nx*Ny*4);
     
+    
+    for (size_t i = 0; i < Nx; i++) {
+        for (size_t j = 0; j < Ny; j++) {
+            // temp
+            size_t k = (Nx * j + i)*4;
+            data[k] = 0.1f;
+            
+            // populate circle
+            const glm::vec2 center = glm::vec2(0.3f,0.5f);
+            const float radius = 0.2f;
+            
+            if (glm::distance(glm::vec2((float)i/(float)Nx,(float)j/(float)Ny), center) <= radius) {
+                data[k]     = 1.0f;
+                data[k+3]   = E(data[k], 0.0f, 0.0f, gamma, 1.0f);
+            }
+            
+            else{
+                data[k+3]   = E(data[k], 0.0f, 0.0f, gamma, 0.1f);
+            }
+        }
+    }
+    
+    // initial shockwave
     for (size_t i = 0; i < Ny; i++) {
-        float x     = 0.1f;
+        float x     = 0.0f;
         size_t k    = (Nx * i + (size_t)(x*(float)Nx))*4;
-        data[k]     = 0.3f;
-        //data[k+1]   = 0.3*0.3f;
-        //data[k+3]   = E(data[k], data[k+1], data[k+2], gamma, 0.3f);
+        data[k]     = 1.0f;
+        data[k+1]   = data[k]*10.0f;
+        data[k+3]   = E(data[k], 1.0f, 0.0f, gamma, 1000.0f);
     }
     
-    for (size_t i = 0; i < 360; i++) {
-        float rad   = glm::radians((float)i);
-        float X = 0.5 + (0.2 * glm::sin(rad));
-        float Y = 0.5 + (0.2 * glm::cos(rad));
-        
-        size_t y = (size_t)(Y*(float)Nx);
-        size_t x = (size_t)(X*(float)Ny);
-        
-        data[(Nx * y + x)*4] = 0.1f;
-    }
     
+    
+    // 2D Riemann condition
+    //glm::vec4 Q[4];
+    /*
+    //
+    // Riemann problem 1
+    //
+    Q[0].x = 1.0f;
+    Q[0].y = 0.0f;
+    Q[0].z = 0.0f;
+    Q[0].w = E(1.0f, 0.0f, 0.0f, gamma, 1.0f);
+    
+    Q[1].x = 0.5197f;
+    Q[1].y = 0.5197f*-0.7259f;
+    Q[1].z = 0.0f;
+    Q[1].w = E(0.5197f, -0.7259f, 0.0f, gamma, 0.4f);
+    
+    Q[2].x = 0.1072f;
+    Q[2].y = 0.1072f*-0.7259f;
+    Q[2].z = 0.1072f*-1.4045f;
+    Q[2].w = E(0.1072f, -0.7259, -1.4045, gamma, 0.0439f);
+    
+    Q[3].x = 0.2579f;
+    Q[3].y = 0.0f;
+    Q[3].z = 0.2579f*-1.4045f;
+    Q[3].w = E(0.2579f, 0.0f, -1.4045f, gamma, 0.15f);
+
+    
+    
+    for (size_t i = 0; i < Nx; i++) {
+        for (size_t j = 0; j < Ny; j++) {
+            size_t k = (Nx * j + i)*4;
+            glm::vec2 coord((float)i/(float)Nx,(float)j/(float)Ny);
+            
+            if (coord.x > 0.5f && coord.y > 0.5f) {
+                data[k]     = Q[0].x;
+                data[k+1]   = Q[0].y;
+                data[k+2]   = Q[0].z;
+                data[k+3]   = Q[0].w;
+            }
+            else if (coord.x < 0.5f && coord.y > 0.5f){
+                data[k]     = Q[1].x;
+                data[k+1]   = Q[1].y;
+                data[k+2]   = Q[1].z;
+                data[k+3]   = Q[1].w;
+            }
+            else if (coord.x < 0.5f && coord.y < 0.5f){
+                data[k]     = Q[2].x;
+                data[k+1]   = Q[2].y;
+                data[k+2]   = Q[2].z;
+                data[k+3]   = Q[2].w;
+            }
+            else if (coord.x > 0.5f && coord.y < 0.5f){
+                data[k]     = Q[3].x;
+                data[k+1]   = Q[3].y;
+                data[k+2]   = Q[3].z;
+                data[k+3]   = Q[3].w;
+            }
+        }
+    }
+    */
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, Nx, Ny,
                  0, GL_RGBA, GL_FLOAT, data.data());
     
     CHECK_GL_ERRORS();
     
-    // Render initial grid to kernel0
-    kernel0->bind();
+    copyTexture(tex, kernelRK[2]);
+    glDeleteTextures(1, &tex);
+}
+
+void AppManager::reconstruct(TextureFBO* Qn){
+    reconstructKernel->bind();
+    glViewport(0, 0, Nx, Ny);
+    bilinear_recon->use();
+    
+    glUniform1i(bilinear_recon->getUniform("QTex"),0);
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, Qn->getTexture());
+    
+    glBindVertexArray(vao);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, NULL);
+    glBindVertexArray(0);
+    
+    bilinear_recon->disuse();
+    reconstructKernel->unbind();
+}
+
+void AppManager::evaluateFluxes(TextureFBO* Qn){
+    fluxKernel->bind();
+    glViewport(0, 0, Nx, Ny);
+    flux_evaluator->use();
+    
+    glUniform1i(flux_evaluator->getUniform("QTex"),0);
+    glUniform1i(flux_evaluator->getUniform("SxTex"),1);
+    glUniform1i(flux_evaluator->getUniform("SyTex"),2);
+    
+    glUniform1f(flux_evaluator->getUniform("gamma"),gamma);
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, Qn->getTexture());
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, reconstructKernel->getTexture(0));
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, reconstructKernel->getTexture(1));
+    glActiveTexture(GL_TEXTURE3);
+    
+    glBindVertexArray(vao);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, NULL);
+    glBindVertexArray(0);
+    
+    flux_evaluator->disuse();
+    fluxKernel->unbind();
+}
+
+void AppManager::computeRK(size_t n, float dt){
+    static const glm::vec2 c[2] =
+        {glm::vec2(0.0,1.0),
+        glm::vec2(0.5,0.5)};
+    
+    kernelRK[n]->bind();
+    glViewport(0, 0, Nx, Ny);
+    runge_kutta->use();
+    
+    glUniform1i(runge_kutta->getUniform("QNTex"),0);
+    glUniform1i(runge_kutta->getUniform("QTex"),1);
+    glUniform1i(runge_kutta->getUniform("FHalfTex"),2);
+    glUniform1i(runge_kutta->getUniform("GHalfTex"),3);
+    
+    glUniform2fv(runge_kutta->getUniform("c"),1,glm::value_ptr(c[n-1]));
+    
+    float dx = (1.0f/(float)Nx);
+    float dy = (1.0f/(float)Ny);
+    
+    glUniform1f(runge_kutta->getUniform("dt"),dt);
+    glUniform1f(runge_kutta->getUniform("dx"),dx);
+    glUniform1f(runge_kutta->getUniform("dy"),dy);
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, kernelRK[0]->getTexture());
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, kernelRK[n-1]->getTexture());
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, fluxKernel->getTexture(0));
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, fluxKernel->getTexture(1));
+    
+    glBindVertexArray(vao);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, NULL);
+    glBindVertexArray(0);
+    
+    runge_kutta->disuse();
+    kernelRK[n]->unbind();
+}
+
+void AppManager::copyTexture(GLint source, TextureFBO* dest){
+    
+    dest->bind();
     glViewport(0, 0, Nx, Ny);
     
     copy->use();
@@ -123,66 +293,55 @@ void AppManager::applyInitial(){
     glUniform1i(copy->getUniform("QTex"), 0);
     
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, tex);
+    glBindTexture(GL_TEXTURE_2D, source);
     
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, NULL);
     glBindVertexArray(0);
     
     copy->disuse();
-    kernel0->unbind();
-    
+    dest->unbind();
     glBindTexture(GL_TEXTURE_2D, 0);
-    glDeleteTextures(1, &tex);
     
     CHECK_GL_ERRORS();
 }
 
-void reconstruct(){
-    
-}
-
-void evaluateFluxes(){
-    
-}
-
-void computeRK(glm::vec2 c){
-    
-}
-
 void AppManager::runKernel(double dt){
+    copyTexture(kernelRK[2]->getTexture(), kernelRK[0]);
     
-    static const glm::vec2 c[2] =
-                        {glm::vec2(0.0,1.0),
-                        glm::vec2(0.5,0.5)};
-    
-    for (size_t i = 0; i < 2; i++) {
+    for (size_t i = 1; i <= 2; i++) {
         // apply boundary condition
-        // TODO: implement boundary shader
+        // TODO: implement boundary shader, rely on texture clamp for now
         
         // reconstruct point values
-        reconstruct();
+        reconstruct(kernelRK[i-1]);
         
         // evaluate fluxes
-        evaluateFluxes();
+        evaluateFluxes(kernelRK[i-1]);
         
         // compute RK
-        computeRK(c[i]);
+        computeRK(i, (float)dt);
     }
     
     CHECK_GL_ERRORS();
 }
 
 void AppManager::render(){
-    double dt = 0.005;//timer.elapsedAndRestart();
+    double dt = 1e-10f;//timer.elapsedAndRestart();
     runKernel(dt);
     
     glViewport(0, 0, window_width*2, window_height*2);
     visualize->use();
     
+    float dx = (1.0f/(float)Nx);
+    float dy = (1.0f/(float)Ny);
+    
+    glUniform1f(visualize->getUniform("dx"),dx);
+    glUniform1f(visualize->getUniform("dy"),dy);
+    
     glUniform1i(visualize->getUniform("QTex"), 0);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, kernel0->getTexture(0));
+    glBindTexture(GL_TEXTURE_2D, kernelRK[2]->getTexture(0));
     
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, NULL);
@@ -243,8 +402,11 @@ void AppManager::setOpenGLStates(){
 }
 
 void AppManager::createProgram(){
-    visualize   = new Program("kernel.vert","visualize.frag");
-    copy        = new Program("kernel.vert","copy.frag");
+    visualize       = new Program("kernel.vert","visualize.frag");
+    copy            = new Program("kernel.vert","copy.frag");
+    flux_evaluator  = new Program("kernel.vert","comp_flux.frag");
+    runge_kutta     = new Program("kernel.vert","RK.frag");
+    bilinear_recon  = new Program("kernel.vert","bilin_reconstruction.frag");
     
     //Set uniforms
 
@@ -278,8 +440,11 @@ void AppManager::createVAO(){
 }
 
 void AppManager::createFBO(){
-    kernel0 = new TextureFBO(Nx, Ny, 1, GL_RGBA32F);
-    kernel1 = new TextureFBO(Nx, Ny, 1, GL_RGBA32F);
+    for (size_t i = 0; i < 3; i++) {
+        kernelRK[i] = new TextureFBO(Nx,Ny);
+    }
+    reconstructKernel   = new TextureFBO(Nx,Ny,2);
+    fluxKernel          = new TextureFBO(Nx,Ny,2);
     
     CHECK_GL_ERRORS();
 }

@@ -14,29 +14,19 @@ uniform float gamma;
 
 float P(in vec4 Q){
     float c = dot(Q.yz,Q.yz)/Q.x;
-    if (isnan(c)) {
-        c = 0.0;
-    }
     return (gamma-1.0)*(Q.w-0.5*c);
 }
 
 vec4 fflux(in vec4 Q){
     float u = Q.y/Q.x;
-    if (isnan(u)) {
-        u = 0.0;
-    }
     float p = P(Q);
     return vec4(Q.y,
                 (Q.y*u)+p,
                 Q.z*u,
                 u*(Q.w+p));
 }
-
 vec4 gflux(in vec4 Q){
-    float v = Q.z/Q.x;
-    if (isnan(v)) {
-        v = 0.0;
-    }
+    float v = Q.z/Q.x;    
     float p = P(Q);
     return vec4(Q.z,
                 Q.y*v,
