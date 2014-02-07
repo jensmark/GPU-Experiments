@@ -5,6 +5,9 @@ out vec4 color1;
 
 in vec2 uv;
 
+//uniform float dx;
+//uniform float dy;
+
 uniform sampler2D QTex;
 
 vec4 minmod(in vec4 a, in vec4 b){

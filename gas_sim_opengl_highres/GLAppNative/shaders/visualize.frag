@@ -21,5 +21,5 @@ void main() {
     float schlieren = pow((1.0-abs(grad)/1e-2f),15.0f);
     
     color = vec4(vec3(schlieren),1.0);
-    //color   = texture(QTex, uv);
+    //color   = abs(texture(QTex, uv));
 }

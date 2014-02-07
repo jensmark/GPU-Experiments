@@ -19,6 +19,8 @@
 		82039ADB186F6672000A0A55 /* visualize.frag in CopyFiles */ = {isa = PBXBuildFile; fileRef = 82039AD2186F65E0000A0A55 /* visualize.frag */; };
 		82039ADE186F6C07000A0A55 /* AppManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82039ADD186F6C07000A0A55 /* AppManager.cpp */; };
 		82039AE21870604A000A0A55 /* copy.frag in CopyFiles */ = {isa = PBXBuildFile; fileRef = 82039AE018704EBD000A0A55 /* copy.frag */; };
+		82A3EC7718A4E6060085CA95 /* boundary.frag in CopyFiles */ = {isa = PBXBuildFile; fileRef = 82A3EC7518A4E3C70085CA95 /* boundary.frag */; };
+		82A3EC7818A4E6060085CA95 /* boundary_kernel.vert in CopyFiles */ = {isa = PBXBuildFile; fileRef = 82A3EC7618A4E4F50085CA95 /* boundary_kernel.vert */; };
 		82E27945187221D200157294 /* RK.frag in CopyFiles */ = {isa = PBXBuildFile; fileRef = 82E279441872180200157294 /* RK.frag */; };
 		82E2794B1872282600157294 /* bilin_reconstruction.frag in CopyFiles */ = {isa = PBXBuildFile; fileRef = 82E279461872238100157294 /* bilin_reconstruction.frag */; };
 		82E2794C1872282600157294 /* comp_flux.frag in CopyFiles */ = {isa = PBXBuildFile; fileRef = 82E27948187227EA00157294 /* comp_flux.frag */; };
@@ -31,6 +33,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
+				82A3EC7718A4E6060085CA95 /* boundary.frag in CopyFiles */,
+				82A3EC7818A4E6060085CA95 /* boundary_kernel.vert in CopyFiles */,
 				82E2794B1872282600157294 /* bilin_reconstruction.frag in CopyFiles */,
 				82E2794C1872282600157294 /* comp_flux.frag in CopyFiles */,
 				82E27945187221D200157294 /* RK.frag in CopyFiles */,
@@ -63,6 +67,8 @@
 		82039ADD186F6C07000A0A55 /* AppManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AppManager.cpp; sourceTree = "<group>"; };
 		82039ADF186F7767000A0A55 /* Timer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Timer.hpp; sourceTree = "<group>"; };
 		82039AE018704EBD000A0A55 /* copy.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = copy.frag; path = shaders/copy.frag; sourceTree = "<group>"; };
+		82A3EC7518A4E3C70085CA95 /* boundary.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = boundary.frag; path = shaders/boundary.frag; sourceTree = "<group>"; };
+		82A3EC7618A4E4F50085CA95 /* boundary_kernel.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = boundary_kernel.vert; path = shaders/boundary_kernel.vert; sourceTree = "<group>"; };
 		82E279441872180200157294 /* RK.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = RK.frag; path = shaders/RK.frag; sourceTree = "<group>"; };
 		82E279461872238100157294 /* bilin_reconstruction.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = bilin_reconstruction.frag; path = shaders/bilin_reconstruction.frag; sourceTree = "<group>"; };
 		82E27948187227EA00157294 /* comp_flux.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = comp_flux.frag; path = shaders/comp_flux.frag; sourceTree = "<group>"; };
@@ -150,6 +156,8 @@
 				82E279441872180200157294 /* RK.frag */,
 				82E279461872238100157294 /* bilin_reconstruction.frag */,
 				82E27948187227EA00157294 /* comp_flux.frag */,
+				82A3EC7518A4E3C70085CA95 /* boundary.frag */,
+				82A3EC7618A4E4F50085CA95 /* boundary_kernel.vert */,
 			);
 			name = shaders;
 			sourceTree = "<group>";

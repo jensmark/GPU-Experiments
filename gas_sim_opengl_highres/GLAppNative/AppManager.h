@@ -55,6 +55,11 @@ private:
     void applyInitial();
     
     /**
+     * Function that enforces boundary condition
+     */
+    void setBoundary(TextureFBO* Qn);
+    
+    /**
 	 * Simulation step
 	 */
     void reconstruct(TextureFBO* Qn);
@@ -83,6 +88,11 @@ private:
 	 * Function that handles rendering into the OpenGL context
 	 */
 	void render();
+    
+    /**
+	 * Downloads latest simulation result for debugging
+	 */
+    void debugDownload();
     
 	/**
 	 * Creates the OpenGL context using GLFW
@@ -135,8 +145,10 @@ private:
     
 private:
     
-    static const unsigned int Nx            = 264;
-    static const unsigned int Ny            = 264;
+    static const unsigned int N_RK          = 2;
+    
+    static const unsigned int Nx            = 512;
+    static const unsigned int Ny            = 512;
     
     static const unsigned int window_width  = 800;
 	static const unsigned int window_height = 600;
@@ -149,21 +161,24 @@ private:
     
     // Timer
     Timer timer;
+    float time;
     
     Program* visualize;
     Program* runge_kutta;
     Program* bilinear_recon;
     Program* flux_evaluator;
     Program* copy;
+    Program* boundary;
     
     BO<GL_ARRAY_BUFFER>* vert;
     BO<GL_ELEMENT_ARRAY_BUFFER>* ind;
+    BO<GL_ARRAY_BUFFER>* b_vert;
     
-    TextureFBO* kernelRK[3];
+    TextureFBO* kernelRK[N_RK+1];
     TextureFBO* reconstructKernel;
     TextureFBO* fluxKernel;
     
-    GLuint vao;
+    GLuint vao[2];
 };
 
 #endif
