@@ -87,7 +87,7 @@ void AppManager::applyInitial(){
     
     // Initialize grid with initial data
     std::vector<GLfloat> data(Nx*Ny*4);
-    
+    /*
     for (size_t i = 0; i < Nx; i++) {
         for (size_t j = 0; j < Ny; j++) {
             // temp
@@ -112,11 +112,11 @@ void AppManager::applyInitial(){
         data[k]     = 1.0f;
         data[k+1]   = data[k]*1.0f;
         data[k+3]   = E(data[k], 1.0f, 0.0f, gamma, 10.0f);
-    }
+    }*/
     
      
     // 2D Riemann condition
-    //glm::vec4 Q[4];
+    glm::vec4 Q[4];
     
     /*
     //
@@ -143,7 +143,7 @@ void AppManager::applyInitial(){
     Q[3].w = E(0.2579f, 0.0f, -1.4045f, gamma, 0.15f);
     */
    
-    /*
+    
     //
     // Riemann problem 2
     //
@@ -166,7 +166,7 @@ void AppManager::applyInitial(){
     Q[3].y = 0.0f;
     Q[3].z = 0.5197f*-0.7259f;
     Q[3].w = E(0.5197f, 0.0f, -0.7269f, gamma, 0.4f);
-     */
+     
     
     //
     // Riemann problem 3
@@ -191,31 +191,31 @@ void AppManager::applyInitial(){
     Q[3].z = 0.5323f*1.206f;
     Q[3].w = E(0.5323f, 0.0f, 1.206f, gamma, 0.3f);
     */
-    /*
+    
     for (size_t i = 0; i < Nx; i++) {
         for (size_t j = 0; j < Ny; j++) {
             size_t k = (Nx * j + i)*4;
             glm::vec2 coord((float)i/(float)Nx,(float)j/(float)Ny);
             
-            if (coord.x > 0.5f && coord.y > 0.5f) {
+            if (coord.x >= 0.5f && coord.y >= 0.5f) {
                 data[k]     = Q[0].x;
                 data[k+1]   = Q[0].y;
                 data[k+2]   = Q[0].z;
                 data[k+3]   = Q[0].w;
             }
-            else if (coord.x < 0.5f && coord.y > 0.5f){
+            else if (coord.x <= 0.5f && coord.y >= 0.5f){
                 data[k]     = Q[1].x;
                 data[k+1]   = Q[1].y;
                 data[k+2]   = Q[1].z;
                 data[k+3]   = Q[1].w;
             }
-            else if (coord.x < 0.5f && coord.y < 0.5f){
+            else if (coord.x <= 0.5f && coord.y <= 0.5f){
                 data[k]     = Q[2].x;
                 data[k+1]   = Q[2].y;
                 data[k+2]   = Q[2].z;
                 data[k+3]   = Q[2].w;
             }
-            else if (coord.x > 0.5f && coord.y < 0.5f){
+            else if (coord.x >= 0.5f && coord.y <= 0.5f){
                 data[k]     = Q[3].x;
                 data[k+1]   = Q[3].y;
                 data[k+2]   = Q[3].z;
@@ -223,7 +223,7 @@ void AppManager::applyInitial(){
             }
         }
     }
-    */
+    
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, Nx, Ny,
                  0, GL_RGBA, GL_FLOAT, data.data());
     
