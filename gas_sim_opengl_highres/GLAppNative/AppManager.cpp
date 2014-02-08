@@ -67,6 +67,7 @@ void AppManager::quit(){
     delete bilinear_recon;
     delete flux_evaluator;
     delete boundary;
+    delete eigen;
     
     for (size_t i = 0; i <= N_RK; i++) {
         delete kernelRK[i];
@@ -89,8 +90,8 @@ void AppManager::applyInitial(){
     glGenTextures(1, &tex);
     
     glBindTexture(GL_TEXTURE_2D, tex);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     
@@ -102,15 +103,15 @@ void AppManager::applyInitial(){
         for (size_t j = 0; j < Ny; j++) {
             // temp
             size_t k = (Nx * j + i)*4;
-            data[k] = 0.01f;
+            data[k] = 0.001f;
             
             // populate circle
             const glm::vec2 center = glm::vec2(0.3f,0.5f);
             const float radius = 0.2f;
             
             if (glm::distance(glm::vec2((float)i/(float)Nx,(float)j/(float)Ny), center) <= radius) {
-                data[k]     = 1.0f;
-                data[k+3]   = E(data[k], 0.0f, 0.0f, gamma, 1.0f);
+                data[k]     = 0.1f;
+                data[k+3]   = E(data[k], 0.0f, 0.0f, gamma, 0.01f);
             }
             
             else{
@@ -121,11 +122,15 @@ void AppManager::applyInitial(){
     
     // initial shockwave
     for (size_t i = 0; i < Ny; i++) {
-        float x     = 0.0f;
-        size_t k    = (Nx * i + (size_t)(x*(float)Nx))*4;
-        data[k]     = 1.0f;
-        data[k+1]   = data[k]*1.0f;
-        data[k+3]   = E(data[k], 1.0f, 0.0f, gamma, 1.0f);
+        size_t k0    = (Nx * i + 0)*4;
+        size_t k1    = (Nx * i + 1)*4;
+        
+        data[k0]     = 1.0f;
+        data[k0]     = data[k0]*1.0f;
+        data[k0+3]   = E(data[k0], 1.0f, 0.0f, gamma, 10.0f);
+        
+        data[k1]     = 0.1f;
+        data[k1+3]   = E(data[k1], 0.0f, 0.0f, gamma, 0.01f);
     }
     */
     
@@ -134,29 +139,27 @@ void AppManager::applyInitial(){
     glm::vec4 Q[4];
     
     //
-    // Riemann problem 1
+    // Riemann problem 3
     //
-    Q[0].x = 1.0f;
+    Q[0].x = 1.5f;
     Q[0].y = 0.0f;
     Q[0].z = 0.0f;
-    Q[0].w = E(1.0f, 0.0f, 0.0f, gamma, 1.0f);
-    
-    Q[1].x = 0.5197f;
-    Q[1].y = 0.5197f*-0.7259f;
+    Q[0].w = E(1.5f, 0.0f, 0.0f, gamma, 1.5f);
+     
+    Q[1].x = 0.5323f;
+    Q[1].y = 0.5323f*1.206f;
     Q[1].z = 0.0f;
-    Q[1].w = E(0.5197f, -0.7269f, 0.0f, gamma, 0.4f);
+    Q[1].w = E(0.5323f, 1.206f, 0.0f, gamma, 0.3f);
     
-    Q[2].x = 1.0f;
-    Q[2].y = 1.0f*-0.7269f;
-    Q[2].z = 1.0f*-0.7269f;
-    Q[2].w = E(1.0f, -0.7269f, -0.7269f, gamma, 1.0f);
-    
-    Q[3].x = 0.5197f;
+    Q[2].x = 0.138f;
+    Q[2].y = 0.138f*1.206f;
+    Q[2].z = 0.138f*1.206f;
+    Q[2].w = E(0.138f, 1.206f, 1.206f, gamma, 0.028f);
+     
+    Q[3].x = 0.5323f;
     Q[3].y = 0.0f;
-    Q[3].z = 0.5197f*-0.7259f;
-    Q[3].w = E(0.5197f, 0.0f, -0.7269f, gamma, 0.4f);
-
-    
+    Q[3].z = 0.5323f*1.206f;
+    Q[3].w = E(0.5323f, 0.0f, 1.206f, gamma, 0.3f);
     
     for (size_t i = 0; i < Nx; i++) {
         for (size_t j = 0; j < Ny; j++) {
@@ -215,6 +218,48 @@ void AppManager::setBoundary(TextureFBO* Qn){
     
     boundary->disuse();
     Qn->unbind();
+}
+
+float AppManager::computeDt(TextureFBO* Qn){
+    static const float CFL = 0.5f;
+    
+    dtKernel->bind();
+    glViewport(0, 0, Nx, Ny);
+    eigen->use();
+    
+    glUniform1i(eigen->getUniform("QTex"),0);
+    glUniform1f(eigen->getUniform("gamma"),gamma);
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, Qn->getTexture());
+    
+    glBindVertexArray(vao[0]);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, NULL);
+    glBindVertexArray(0);
+    
+    eigen->disuse();
+    dtKernel->unbind();
+
+    glBindTexture(GL_TEXTURE_2D, dtKernel->getTexture());
+    
+    std::vector<GLfloat> data(Nx*Ny*4);
+    glGetTexImage(GL_TEXTURE_2D,0,GL_RGBA,GL_FLOAT,&data[0]);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
+    float eig = -std::numeric_limits<float>().max();
+    
+    for (size_t x = 0; x < Nx; x++) {
+        for (size_t y = 0; y < Ny; y++) {
+            size_t k = (Nx * y + x)*4;
+            eig = glm::max(eig, data[k]);
+        }
+    }
+    float delta = glm::max(1.0f/(float)Nx,1.0f/(float)Ny);
+    float dt = 1.0*CFL*delta/eig;
+    
+    std::cout << "Dt: " << dt << " Max eigenvalue: " << eig << std::endl << std::endl;
+    
+    return dt;
 }
 
 void AppManager::reconstruct(TextureFBO* Qn){
@@ -343,9 +388,12 @@ void AppManager::copyTexture(GLint source, TextureFBO* dest){
     CHECK_GL_ERRORS();
 }
 
-void AppManager::runKernel(double dt){
+void AppManager::runKernel(){
     debugDownload();
+    
     copyTexture(kernelRK[N_RK]->getTexture(), kernelRK[0]);
+    
+    float dt = computeDt(kernelRK[0]);
     
     for (size_t n = 1; n <= N_RK; n++) {
         // apply boundary condition
@@ -358,18 +406,15 @@ void AppManager::runKernel(double dt){
         evaluateFluxes(kernelRK[n-1]);
         
         // compute RK
-        computeRK(n, (float)dt);
+        computeRK(n, dt);
     }
-    time += (float)dt;
-    
-    debugDownload();
+    time += dt;
     
     CHECK_GL_ERRORS();
 }
 
 void AppManager::render(){
-    double dt = 1e-10f;//timer.elapsedAndRestart();
-    runKernel(dt);
+    runKernel();
     
     glViewport(0, 0, window_width*2, window_height*2);
     visualize->use();
@@ -420,11 +465,11 @@ void AppManager::debugDownload(){
             maxrho = glm::max(maxrho,data[k]);
             minrho = glm::min(minrho,data[k]);
             
-            maxu = glm::max(maxu,data[k+1]);
-            minu = glm::min(minu,data[k+1]);
+            maxu = glm::max(maxu,data[k+1]/data[k]);
+            minu = glm::min(minu,data[k+1]/data[k]);
             
-            maxv = glm::max(maxv,data[k+2]);
-            minv = glm::min(minv,data[k+2]);
+            maxv = glm::max(maxv,data[k+2]/data[k]);
+            minv = glm::min(minv,data[k+2]/data[k]);
             
             maxE = glm::max(maxE,data[k+3]);
             minE = glm::min(minE,data[k+3]);
@@ -434,7 +479,7 @@ void AppManager::debugDownload(){
     std::cout << "Debug information @ " << time << ": " << std::endl <<
         "Density range: [" << minrho << "," << maxrho << "]" << std::endl <<
         "Velocity u range: [" << minu << "," << maxu << "]" << std::endl <<
-        "Velocity v range: [" << minv << "," << minu << "]" << std::endl <<
+        "Velocity v range: [" << minv << "," << maxv << "]" << std::endl <<
         "Energy range: [" << minE << "," << maxE << "]" << std::endl << std::endl;
     
     CHECK_GL_ERRORS();
@@ -497,6 +542,7 @@ void AppManager::createProgram(){
     runge_kutta     = new Program("kernel.vert","RK.frag");
     bilinear_recon  = new Program("kernel.vert","bilin_reconstruction.frag");
     boundary        = new Program("boundary_kernel.vert","boundary.frag");
+    eigen           = new Program("kernel.vert","eigenvalue.frag");
     
     //Set uniforms
 
@@ -576,6 +622,8 @@ void AppManager::createFBO(){
     }
     reconstructKernel   = new TextureFBO(Nx,Ny,2);
     fluxKernel          = new TextureFBO(Nx,Ny,2);
+    
+    dtKernel            = new TextureFBO(Nx,Ny);
     
     CHECK_GL_ERRORS();
 }

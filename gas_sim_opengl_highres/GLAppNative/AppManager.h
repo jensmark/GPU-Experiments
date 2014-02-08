@@ -60,6 +60,11 @@ private:
     void setBoundary(TextureFBO* Qn);
     
     /**
+     * Computes timestep based on CFL
+     */
+    float computeDt(TextureFBO* Qn);
+    
+    /**
 	 * Simulation step
 	 */
     void reconstruct(TextureFBO* Qn);
@@ -82,7 +87,7 @@ private:
     /**
 	 * Function that runs sim kernel
 	 */
-    void runKernel(double dt);
+    void runKernel();
     
 	/**
 	 * Function that handles rendering into the OpenGL context
@@ -147,8 +152,8 @@ private:
     
     static const unsigned int N_RK          = 2;
     
-    static const unsigned int Nx            = 512;
-    static const unsigned int Ny            = 512;
+    static const unsigned int Nx            = 128;
+    static const unsigned int Ny            = 128;
     
     static const unsigned int window_width  = 800;
 	static const unsigned int window_height = 600;
@@ -169,6 +174,7 @@ private:
     Program* flux_evaluator;
     Program* copy;
     Program* boundary;
+    Program* eigen;
     
     BO<GL_ARRAY_BUFFER>* vert;
     BO<GL_ELEMENT_ARRAY_BUFFER>* ind;
@@ -177,6 +183,7 @@ private:
     TextureFBO* kernelRK[N_RK+1];
     TextureFBO* reconstructKernel;
     TextureFBO* fluxKernel;
+    TextureFBO* dtKernel;
     
     GLuint vao[2];
 };
