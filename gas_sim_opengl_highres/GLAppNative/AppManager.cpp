@@ -221,7 +221,7 @@ void AppManager::setBoundary(TextureFBO* Qn){
 }
 
 float AppManager::computeDt(TextureFBO* Qn){
-    static const float CFL = 0.5f;
+    static const float CFL = 0.00002f;
     
     dtKernel->bind();
     glViewport(0, 0, Nx, Ny);
@@ -254,8 +254,9 @@ float AppManager::computeDt(TextureFBO* Qn){
             eig = glm::max(eig, data[k]);
         }
     }
-    float delta = glm::max(1.0f/(float)Nx,1.0f/(float)Ny);
-    float dt = 1.0*CFL*delta/eig;
+    float dx = 1.0f/(float)Nx;
+    float dy = 1.0f/(float)Ny;
+    float dt = CFL*glm::min(dx/eig,dy/eig);
     
     std::cout << "Dt: " << dt << " Max eigenvalue: " << eig << std::endl << std::endl;
     
@@ -334,7 +335,7 @@ void AppManager::computeRK(size_t n, float dt){
     runge_kutta->use();
     
     glUniform1i(runge_kutta->getUniform("QNTex"),0);
-    glUniform1i(runge_kutta->getUniform("QTex"),1);
+    glUniform1i(runge_kutta->getUniform("QKTex"),1);
     glUniform1i(runge_kutta->getUniform("FHalfTex"),2);
     glUniform1i(runge_kutta->getUniform("GHalfTex"),3);
     
@@ -428,6 +429,8 @@ void AppManager::render(){
     glUniform1i(visualize->getUniform("QTex"), 0);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, kernelRK[N_RK]->getTexture(0));
+    //glBindTexture(GL_TEXTURE_2D, fluxKernel->getTexture(0));
+    //glBindTexture(GL_TEXTURE_2D, reconstructKernel->getTexture(0));
     
     glBindVertexArray(vao[0]);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, NULL);

@@ -18,10 +18,10 @@ void main() {
     float c = sqrt(gamma*P(Q)/Q.x);
     
     float eigen;
-    eigen = max(abs(Q.y-c),0.0);
-    eigen = max(abs(Q.y+c),abs(eigen));
-    eigen = max(abs(Q.z-c),abs(eigen));
-    eigen = max(abs(Q.z+c),abs(eigen));
+    eigen = max(abs(Q.y)-c,0.0);
+    eigen = max(abs(Q.y)+c,abs(eigen));
+    eigen = max(abs(Q.z)-c,abs(eigen));
+    eigen = max(abs(Q.z)+c,abs(eigen));
     
     color = vec4(eigen);
 }
