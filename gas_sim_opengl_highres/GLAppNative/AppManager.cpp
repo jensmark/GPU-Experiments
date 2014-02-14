@@ -100,51 +100,37 @@ void AppManager::applyInitial(){
     std::vector<GLfloat> data(Nx*Ny*4);
     
     
-    /*for (size_t i = 0; i < Nx; i++) {
+    for (size_t i = 0; i < Nx; i++) {
         for (size_t j = 0; j < Ny; j++) {
             // temp
             size_t k = (Nx * j + i)*4;
-            data[k] = 0.001f;
+            data[k] = 0.2f;
+            data[k+3]   = E(data[k], 0.0f, 0.0f, gamma, 0.1f);
             
             // populate circle
-            const glm::vec2 center = glm::vec2(0.5f,0.5f);
+            const glm::vec2 center = glm::vec2(0.3f,0.5f);
             const float radius = 0.2f;
+            float x = (float)i/(float)Nx;
             
             if (glm::distance(glm::vec2((float)i/(float)Nx,(float)j/(float)Ny), center) <= radius) {
                 data[k]     = 0.1f;
                 data[k+3]   = E(data[k], 0.0f, 0.0f, gamma, 0.1f);
+            }else if(x <= 0.05f){
+                data[k]     = 0.3f;
+                data[k+1]   = 0.3f*1.0f;
+                data[k+3]   = E(data[k], 1.0f, 0.0f, gamma, 10.0f);
             }
-            
-            else{
-                data[k+3]   = E(data[k], 0.0f, 0.0f, gamma, 0.1f);
-            }
+
         }
-    }*/
-    
-    /*
-    // initial shockwave
-    for (size_t i = 0; i < Ny; i++) {
-        size_t k0    = (Nx * i + 0)*4;
-        size_t k1    = (Nx * i + 1)*4;
-        
-        data[k0]     = 1.0f;
-        data[k0]     = data[k0]*1.0f;
-        data[k0+3]   = E(data[k0], 1.0f, 0.0f, gamma, 10.0f);
-        
-        data[k1]     = 0.1f;
-        data[k1+3]   = E(data[k1], 0.0f, 0.0f, gamma, 0.01f);
     }
-    */
+    
     /*for (size_t j = 0; j < Ny; j++) {
         for (size_t i = 0; i < Nx; i++) {
             size_t k    = (Nx * j + i)*4;
             float x = (float)i/(float)Nx;
             data[k] = 0.001f;
         
-            if(x >= 0.4f && x <= 0.5f){
-                data[k] = 0.1f;
-                data[k+3]   = E(data[k], 0.0f, 0.0f, gamma, 0.2f);
-            }
+     
             else{
                 data[k+3]   = E(data[k], 0.0f, 0.0f, gamma, 0.1f);
             }
@@ -153,12 +139,12 @@ void AppManager::applyInitial(){
     
     
     // 2D Riemann condition
-    glm::vec4 Q[4];
+    //glm::vec4 Q[4];
     
     //
     // Riemann problem 3
     //
-    Q[0].x = 1.5f;
+    /*Q[0].x = 1.5f;
     Q[0].y = 0.0f;
     Q[0].z = 0.0f;
     Q[0].w = E(1.5f, 0.0f, 0.0f, gamma, 1.5f);
@@ -208,7 +194,7 @@ void AppManager::applyInitial(){
                 data[k+3]   = Q[3].w;
             }
         }
-    }
+    }*/
     
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, Nx, Ny,
                  0, GL_RGBA, GL_FLOAT, data.data());
@@ -318,9 +304,9 @@ void AppManager::evaluateFluxes(TextureFBO* Qn){
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, Qn->getTexture());
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, reconstructKernel->getTexture(0));
-    glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, reconstructKernel->getTexture(1));
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, reconstructKernel->getTexture(0));
     glActiveTexture(GL_TEXTURE3);
     
     glBindVertexArray(vao[0]);
@@ -407,7 +393,7 @@ void AppManager::copyTexture(GLint source, TextureFBO* dest){
 }
 
 void AppManager::runKernel(){
-    debugDownload();
+    //debugDownload(true);
     
     copyTexture(kernelRK[N_RK]->getTexture(), kernelRK[0]);
     
@@ -459,8 +445,8 @@ void AppManager::render(){
     CHECK_GL_ERRORS();
 }
 
-void AppManager::debugDownload(){
-    /*glBindTexture(GL_TEXTURE_2D, kernelRK[N_RK]->getTexture());
+void AppManager::debugDownload(bool texDump){
+    glBindTexture(GL_TEXTURE_2D, kernelRK[N_RK]->getTexture());
     
     std::vector<GLfloat> data(Nx*Ny*4);
     glGetTexImage(GL_TEXTURE_2D,0,GL_RGBA,GL_FLOAT,&data[0]);
@@ -517,8 +503,12 @@ void AppManager::debugDownload(){
         "pu summation: " << rhouSum << std::endl <<
         "pv summation: " << rhovSum << std::endl <<
         "E summation: " << ESum << std::endl << std::endl;
-    */
-    /*std::cout << "~ Texture dump ~" << std::endl << std::endl;
+    
+    if(!texDump){
+        return;
+    }
+    
+    std::cout << "~ Texture dump ~" << std::endl << std::endl;
     std::cout << "RK tex: [";
     for (size_t y = 0; y < Ny; y++) {
         std::cout << "[" << std::endl;
@@ -609,7 +599,7 @@ void AppManager::debugDownload(){
         }
         std::cout << "]";
     }
-    std::cout << "]" << std::endl << std::endl;*/
+    std::cout << "]" << std::endl << std::endl;
     
     CHECK_GL_ERRORS();
 }

@@ -15,10 +15,10 @@ void main() {
     float rhoE  = textureOffset(QTex, uv, ivec2(1,0)).x;
     float rhoW  = textureOffset(QTex, uv, ivec2(-1,0)).x;
     
-    vec2 norm   = vec2((rhoW-rhoE)/2.0*dx,
-                       (rhoS-rhoN)/2.0*dy);
+    vec2 norm   = vec2((rhoE-rhoW)/2.0*dx,
+                       (rhoN-rhoS)/2.0*dy);
     float grad  = length(norm);
-    float schlieren = pow((1.0-abs(grad)/8e-4),15.0);
+    float schlieren = pow((1.0-abs(grad)/2e-3),15.0);
     
     color = vec4(vec3(schlieren),1.0);
     //color   = abs(texture(QTex, uv));

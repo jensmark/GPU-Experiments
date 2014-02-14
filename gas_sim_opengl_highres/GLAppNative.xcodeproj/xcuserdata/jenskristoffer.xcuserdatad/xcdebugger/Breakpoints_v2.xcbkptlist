@@ -87,7 +87,7 @@
                   symbolName = "GLUtils::checkGLFBOCompleteness(char const*, unsigned int)"
                   moduleName = "GLAppNative"
                   urlString = "file:///Users/jenskristoffer/Documents/experiments/GPU-Experiments/gas_sim_opengl_highres/GLAppNative/GLUtils/GLUtils.hpp"
-                  timestampString = "414081052.953834"
+                  timestampString = "414084975.790158"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "36"
@@ -101,7 +101,7 @@
                   symbolName = "GLUtils::checkGLFBOCompleteness(char const*, unsigned int)"
                   moduleName = "GLAppNative"
                   urlString = "file:///Users/jenskristoffer/Documents/experiments/GPU-Experiments/gas_sim_opengl_highres/GLAppNative/GLUtils/GLUtils.hpp"
-                  timestampString = "414081052.954253"
+                  timestampString = "414084975.790531"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "36"
@@ -118,11 +118,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "GLAppNative/AppManager.cpp"
-            timestampString = "414079043.49212"
+            timestampString = "414082665.15044"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "623"
-            endingLineNumber = "623"
+            startingLineNumber = "613"
+            endingLineNumber = "613"
             landmarkName = "AppManager::createOpenGLContext()"
             landmarkType = "5">
          </BreakpointContent>
@@ -149,7 +149,7 @@
                   symbolName = "GLUtils::checkGLErrors(char const*, unsigned int)"
                   moduleName = "GLAppNative"
                   urlString = "file:///Users/jenskristoffer/Documents/experiments/GPU-Experiments/gas_sim_opengl_highres/GLAppNative/GLUtils/GLUtils.hpp"
-                  timestampString = "414081052.95474"
+                  timestampString = "414084975.792294"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "28"
@@ -163,7 +163,7 @@
                   symbolName = "GLUtils::checkGLErrors(char const*, unsigned int)"
                   moduleName = "GLAppNative"
                   urlString = "file:///Users/jenskristoffer/Documents/experiments/GPU-Experiments/gas_sim_opengl_highres/GLAppNative/GLUtils/GLUtils.hpp"
-                  timestampString = "414081052.955155"
+                  timestampString = "414084975.792549"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "28"
@@ -177,7 +177,7 @@
                   symbolName = "GLUtils::checkGLErrors(char const*, unsigned int)"
                   moduleName = "GLAppNative"
                   urlString = "file:///Users/jenskristoffer/Documents/experiments/GPU-Experiments/gas_sim_opengl_highres/GLAppNative/GLUtils/GLUtils.hpp"
-                  timestampString = "414081052.95556"
+                  timestampString = "414084975.792734"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "28"
@@ -194,11 +194,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "GLAppNative/AppManager.cpp"
-            timestampString = "414079043.49212"
+            timestampString = "414082665.15044"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "386"
-            endingLineNumber = "386"
+            startingLineNumber = "372"
+            endingLineNumber = "372"
             landmarkName = "AppManager::copyTexture(GLint source, TextureFBO* dest)"
             landmarkType = "5">
          </BreakpointContent>
@@ -210,12 +210,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "GLAppNative/AppManager.cpp"
-            timestampString = "414079043.49212"
+            timestampString = "414082665.15044"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "486"
-            endingLineNumber = "486"
-            landmarkName = "AppManager::debugDownload()"
+            startingLineNumber = "472"
+            endingLineNumber = "472"
+            landmarkName = "AppManager::debugDownload(bool texDump)"
             landmarkType = "5">
             <Locations>
                <Location
@@ -256,12 +256,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "GLAppNative/AppManager.cpp"
-            timestampString = "414079043.49212"
+            timestampString = "414082665.15044"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "467"
-            endingLineNumber = "467"
-            landmarkName = "AppManager::debugDownload()"
+            startingLineNumber = "453"
+            endingLineNumber = "453"
+            landmarkName = "AppManager::debugDownload(bool texDump)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -272,12 +272,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "GLAppNative/AppManager.cpp"
-            timestampString = "414079043.49212"
+            timestampString = "414082665.15044"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "468"
-            endingLineNumber = "468"
-            landmarkName = "AppManager::debugDownload()"
+            startingLineNumber = "454"
+            endingLineNumber = "454"
+            landmarkName = "AppManager::debugDownload(bool texDump)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -288,12 +288,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "GLAppNative/AppManager.cpp"
-            timestampString = "414079043.49212"
+            timestampString = "414082665.15044"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "614"
-            endingLineNumber = "614"
-            landmarkName = "AppManager::debugDownload()"
+            startingLineNumber = "604"
+            endingLineNumber = "604"
+            landmarkName = "AppManager::debugDownload(bool texDump)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -304,11 +304,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "GLAppNative/AppManager.cpp"
-            timestampString = "414079043.49212"
+            timestampString = "414082665.15044"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "385"
-            endingLineNumber = "385">
+            startingLineNumber = "371"
+            endingLineNumber = "371">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

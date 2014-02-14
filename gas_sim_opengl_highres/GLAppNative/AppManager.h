@@ -97,7 +97,7 @@ private:
     /**
 	 * Downloads latest simulation result for debugging
 	 */
-    void debugDownload();
+    void debugDownload(bool texDump);
     
 	/**
 	 * Creates the OpenGL context using GLFW
@@ -152,8 +152,8 @@ private:
     
     static const unsigned int N_RK          = 3;
     
-    static const unsigned int Nx            = 1024;
-    static const unsigned int Ny            = 1024;
+    static const unsigned int Nx            = 512;
+    static const unsigned int Ny            = 512;
     
     static const unsigned int window_width  = 800;
 	static const unsigned int window_height = 600;
