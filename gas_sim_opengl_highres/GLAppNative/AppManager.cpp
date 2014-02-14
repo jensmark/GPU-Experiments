@@ -135,7 +135,7 @@ void AppManager::applyInitial(){
         data[k1+3]   = E(data[k1], 0.0f, 0.0f, gamma, 0.01f);
     }
     */
-    for (size_t j = 0; j < Ny; j++) {
+    /*for (size_t j = 0; j < Ny; j++) {
         for (size_t i = 0; i < Nx; i++) {
             size_t k    = (Nx * j + i)*4;
             float x = (float)i/(float)Nx;
@@ -149,16 +149,16 @@ void AppManager::applyInitial(){
                 data[k+3]   = E(data[k], 0.0f, 0.0f, gamma, 0.1f);
             }
         }
-    }
+    }*/
     
     
     // 2D Riemann condition
-    //glm::vec4 Q[4];
+    glm::vec4 Q[4];
     
     //
     // Riemann problem 3
     //
-    /*Q[0].x = 1.5f;
+    Q[0].x = 1.5f;
     Q[0].y = 0.0f;
     Q[0].z = 0.0f;
     Q[0].w = E(1.5f, 0.0f, 0.0f, gamma, 1.5f);
@@ -208,7 +208,7 @@ void AppManager::applyInitial(){
                 data[k+3]   = Q[3].w;
             }
         }
-    }*/
+    }
     
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, Nx, Ny,
                  0, GL_RGBA, GL_FLOAT, data.data());
@@ -238,7 +238,7 @@ void AppManager::setBoundary(TextureFBO* Qn){
 }
 
 float AppManager::computeDt(TextureFBO* Qn){
-    static const float CFL = 0.05f;
+    static const float CFL = 0.5f;
     
     dtKernel->bind();
     glViewport(0, 0, Nx, Ny);
@@ -370,9 +370,9 @@ void AppManager::computeRK(size_t n, float dt){
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, kernelRK[n-1]->getTexture());
     glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, fluxKernel->getTexture(0));
-    glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, fluxKernel->getTexture(1));
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, fluxKernel->getTexture(0));
     
     glBindVertexArray(vao[0]);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, NULL);
@@ -460,7 +460,7 @@ void AppManager::render(){
 }
 
 void AppManager::debugDownload(){
-    glBindTexture(GL_TEXTURE_2D, kernelRK[N_RK]->getTexture());
+    /*glBindTexture(GL_TEXTURE_2D, kernelRK[N_RK]->getTexture());
     
     std::vector<GLfloat> data(Nx*Ny*4);
     glGetTexImage(GL_TEXTURE_2D,0,GL_RGBA,GL_FLOAT,&data[0]);
@@ -517,8 +517,8 @@ void AppManager::debugDownload(){
         "pu summation: " << rhouSum << std::endl <<
         "pv summation: " << rhovSum << std::endl <<
         "E summation: " << ESum << std::endl << std::endl;
-    
-    std::cout << "~ Texture dump ~" << std::endl << std::endl;
+    */
+    /*std::cout << "~ Texture dump ~" << std::endl << std::endl;
     std::cout << "RK tex: [";
     for (size_t y = 0; y < Ny; y++) {
         std::cout << "[" << std::endl;
@@ -535,7 +535,7 @@ void AppManager::debugDownload(){
     std::cout << "]" << std::endl << std::endl;
     
     
-    glBindTexture(GL_TEXTURE_2D, fluxKernel->getTexture(0));
+    glBindTexture(GL_TEXTURE_2D, fluxKernel->getTexture(1));
     glGetTexImage(GL_TEXTURE_2D,0,GL_RGBA,GL_FLOAT,&data[0]);
     glBindTexture(GL_TEXTURE_2D, 0);
     
@@ -554,7 +554,7 @@ void AppManager::debugDownload(){
     }
     std::cout << "]" << std::endl << std::endl;
     
-    glBindTexture(GL_TEXTURE_2D, fluxKernel->getTexture(1));
+    glBindTexture(GL_TEXTURE_2D, fluxKernel->getTexture(0));
     glGetTexImage(GL_TEXTURE_2D,0,GL_RGBA,GL_FLOAT,&data[0]);
     glBindTexture(GL_TEXTURE_2D, 0);
     
@@ -609,7 +609,7 @@ void AppManager::debugDownload(){
         }
         std::cout << "]";
     }
-    std::cout << "]" << std::endl << std::endl;
+    std::cout << "]" << std::endl << std::endl;*/
     
     CHECK_GL_ERRORS();
 }

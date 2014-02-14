@@ -150,10 +150,10 @@ private:
     
 private:
     
-    static const unsigned int N_RK          = 2;
+    static const unsigned int N_RK          = 3;
     
-    static const unsigned int Nx            = 10;
-    static const unsigned int Ny            = 1;
+    static const unsigned int Nx            = 1024;
+    static const unsigned int Ny            = 1024;
     
     static const unsigned int window_width  = 800;
 	static const unsigned int window_height = 600;
