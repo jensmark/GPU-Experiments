@@ -19,7 +19,8 @@ AppManager::AppManager():
     ind(NULL),
     gamma(0.0f),
     pressure(0.0f),
-    time(0.0f){
+    time(0.0f),
+    step(0){
 }
 
 AppManager::~AppManager(){
@@ -98,28 +99,29 @@ void AppManager::applyInitial(){
     // Initialize grid with initial data
     std::vector<GLfloat> data(Nx*Ny*4);
     
-    /*
-    for (size_t i = 0; i < Nx; i++) {
+    
+    /*for (size_t i = 0; i < Nx; i++) {
         for (size_t j = 0; j < Ny; j++) {
             // temp
             size_t k = (Nx * j + i)*4;
             data[k] = 0.001f;
             
             // populate circle
-            const glm::vec2 center = glm::vec2(0.3f,0.5f);
+            const glm::vec2 center = glm::vec2(0.5f,0.5f);
             const float radius = 0.2f;
             
             if (glm::distance(glm::vec2((float)i/(float)Nx,(float)j/(float)Ny), center) <= radius) {
                 data[k]     = 0.1f;
-                data[k+3]   = E(data[k], 0.0f, 0.0f, gamma, 0.01f);
+                data[k+3]   = E(data[k], 0.0f, 0.0f, gamma, 0.1f);
             }
             
             else{
-                data[k+3]   = E(data[k], 0.0f, 0.0f, gamma, 0.01f);
+                data[k+3]   = E(data[k], 0.0f, 0.0f, gamma, 0.1f);
             }
         }
-    }
+    }*/
     
+    /*
     // initial shockwave
     for (size_t i = 0; i < Ny; i++) {
         size_t k0    = (Nx * i + 0)*4;
@@ -133,15 +135,30 @@ void AppManager::applyInitial(){
         data[k1+3]   = E(data[k1], 0.0f, 0.0f, gamma, 0.01f);
     }
     */
+    for (size_t j = 0; j < Ny; j++) {
+        for (size_t i = 0; i < Nx; i++) {
+            size_t k    = (Nx * j + i)*4;
+            float x = (float)i/(float)Nx;
+            data[k] = 0.001f;
+        
+            if(x >= 0.4f && x <= 0.5f){
+                data[k] = 0.1f;
+                data[k+3]   = E(data[k], 0.0f, 0.0f, gamma, 0.2f);
+            }
+            else{
+                data[k+3]   = E(data[k], 0.0f, 0.0f, gamma, 0.1f);
+            }
+        }
+    }
     
     
     // 2D Riemann condition
-    glm::vec4 Q[4];
+    //glm::vec4 Q[4];
     
     //
     // Riemann problem 3
     //
-    Q[0].x = 1.5f;
+    /*Q[0].x = 1.5f;
     Q[0].y = 0.0f;
     Q[0].z = 0.0f;
     Q[0].w = E(1.5f, 0.0f, 0.0f, gamma, 1.5f);
@@ -191,7 +208,7 @@ void AppManager::applyInitial(){
                 data[k+3]   = Q[3].w;
             }
         }
-    }
+    }*/
     
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, Nx, Ny,
                  0, GL_RGBA, GL_FLOAT, data.data());
@@ -221,7 +238,7 @@ void AppManager::setBoundary(TextureFBO* Qn){
 }
 
 float AppManager::computeDt(TextureFBO* Qn){
-    static const float CFL = 0.00002f;
+    static const float CFL = 0.05f;
     
     dtKernel->bind();
     glViewport(0, 0, Nx, Ny);
@@ -410,6 +427,7 @@ void AppManager::runKernel(){
         computeRK(n, dt);
     }
     time += dt;
+    step++;
     
     CHECK_GL_ERRORS();
 }
@@ -443,7 +461,6 @@ void AppManager::render(){
 
 void AppManager::debugDownload(){
     glBindTexture(GL_TEXTURE_2D, kernelRK[N_RK]->getTexture());
-    //glBindTexture(GL_TEXTURE_2D, fluxKernel->getTexture(1));
     
     std::vector<GLfloat> data(Nx*Ny*4);
     glGetTexImage(GL_TEXTURE_2D,0,GL_RGBA,GL_FLOAT,&data[0]);
@@ -461,9 +478,19 @@ void AppManager::debugDownload(){
     float maxE      = maxrho;
     float minE      = minrho;
     
+    float rhoSum    = 0.0f;
+    float rhouSum   = 0.0f;
+    float rhovSum   = 0.0f;
+    float ESum      = 0.0f;
+    
     for (size_t x = 0; x < Nx; x++) {
         for (size_t y = 0; y < Ny; y++) {
             size_t k = (Nx * y + x)*4;
+            
+            rhoSum    += data[k];
+            rhouSum   += data[k+1];
+            rhovSum   += data[k+2];
+            ESum      += data[k+3];
             
             maxrho = glm::max(maxrho,data[k]);
             minrho = glm::min(minrho,data[k]);
@@ -479,11 +506,110 @@ void AppManager::debugDownload(){
         }
     }
     
-    std::cout << "Debug information @ " << time << ": " << std::endl <<
-        "Density range: [" << minrho << "," << maxrho << "]" << std::endl <<
-        "Velocity u range: [" << minu << "," << maxu << "]" << std::endl <<
-        "Velocity v range: [" << minv << "," << maxv << "]" << std::endl <<
-        "Energy range: [" << minE << "," << maxE << "]" << std::endl << std::endl;
+    std::cout << "Debug information @ s " << step << " t " << time << ": " << std::endl <<
+        "Value Range: " << std::endl <<
+        "p range: [" << minrho << "," << maxrho << "]" << std::endl <<
+        "u range: [" << minu << "," << maxu << "]" << std::endl <<
+        "v range: [" << minv << "," << maxv << "]" << std::endl <<
+        "E range: [" << minE << "," << maxE << "]" << std::endl << std::endl <<
+        "Value summation" << std::endl <<
+        "p summation: " << rhoSum << std::endl <<
+        "pu summation: " << rhouSum << std::endl <<
+        "pv summation: " << rhovSum << std::endl <<
+        "E summation: " << ESum << std::endl << std::endl;
+    
+    std::cout << "~ Texture dump ~" << std::endl << std::endl;
+    std::cout << "RK tex: [";
+    for (size_t y = 0; y < Ny; y++) {
+        std::cout << "[" << std::endl;
+        for (size_t x = 0; x < Nx; x++) {
+            size_t k = (Nx * y + x)*4;
+            std::cout << "[" << x << "," << y << "](" <<
+                data[k] << "," <<
+                data[k+1] << "," <<
+                data[k+2] << "," <<
+            data[k+3] << "), " << std::endl;
+        }
+        std::cout << "]";
+    }
+    std::cout << "]" << std::endl << std::endl;
+    
+    
+    glBindTexture(GL_TEXTURE_2D, fluxKernel->getTexture(0));
+    glGetTexImage(GL_TEXTURE_2D,0,GL_RGBA,GL_FLOAT,&data[0]);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
+    std::cout << "fflux tex: [";
+    for (size_t y = 0; y < Ny; y++) {
+        std::cout << "[" << std::endl;
+        for (size_t x = 0; x < Nx; x++) {
+            size_t k = (Nx * y + x)*4;
+            std::cout << "[" << x << "," << y << "](" <<
+            data[k] << "," <<
+            data[k+1] << "," <<
+            data[k+2] << "," <<
+            data[k+3] << "), " << std::endl;
+        }
+        std::cout << "]";
+    }
+    std::cout << "]" << std::endl << std::endl;
+    
+    glBindTexture(GL_TEXTURE_2D, fluxKernel->getTexture(1));
+    glGetTexImage(GL_TEXTURE_2D,0,GL_RGBA,GL_FLOAT,&data[0]);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
+    std::cout << "gflux tex: [";
+    for (size_t y = 0; y < Ny; y++) {
+        std::cout << "[" << std::endl;
+        for (size_t x = 0; x < Nx; x++) {
+            size_t k = (Nx * y + x)*4;
+            std::cout << "[" << x << "," << y << "](" <<
+            data[k] << "," <<
+            data[k+1] << "," <<
+            data[k+2] << "," <<
+            data[k+3] << "), " << std::endl;
+        }
+        std::cout << "]";
+    }
+    std::cout << "]" << std::endl << std::endl;
+    
+    glBindTexture(GL_TEXTURE_2D, reconstructKernel->getTexture(0));
+    glGetTexImage(GL_TEXTURE_2D,0,GL_RGBA,GL_FLOAT,&data[0]);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
+    std::cout << "xderived tex: [";
+    for (size_t y = 0; y < Ny; y++) {
+        std::cout << "[" << std::endl;
+        for (size_t x = 0; x < Nx; x++) {
+            size_t k = (Nx * y + x)*4;
+            std::cout << "[" << x << "," << y << "](" <<
+            data[k] << "," <<
+            data[k+1] << "," <<
+            data[k+2] << "," <<
+            data[k+3] << "), " << std::endl;
+        }
+        std::cout << "]";
+    }
+    std::cout << "]" << std::endl << std::endl;
+    
+    glBindTexture(GL_TEXTURE_2D, reconstructKernel->getTexture(1));
+    glGetTexImage(GL_TEXTURE_2D,0,GL_RGBA,GL_FLOAT,&data[0]);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
+    std::cout << "yderived tex: [";
+    for (size_t y = 0; y < Ny; y++) {
+        std::cout << "[" << std::endl;
+        for (size_t x = 0; x < Nx; x++) {
+            size_t k = (Nx * y + x)*4;
+            std::cout << "[" << x << "," << y << "](" <<
+            data[k] << "," <<
+            data[k+1] << "," <<
+            data[k+2] << "," <<
+            data[k+3] << "), " << std::endl;
+        }
+        std::cout << "]";
+    }
+    std::cout << "]" << std::endl << std::endl;
     
     CHECK_GL_ERRORS();
 }

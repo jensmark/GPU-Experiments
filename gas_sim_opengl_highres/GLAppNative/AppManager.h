@@ -152,8 +152,8 @@ private:
     
     static const unsigned int N_RK          = 2;
     
-    static const unsigned int Nx            = 128;
-    static const unsigned int Ny            = 128;
+    static const unsigned int Nx            = 10;
+    static const unsigned int Ny            = 1;
     
     static const unsigned int window_width  = 800;
 	static const unsigned int window_height = 600;
@@ -165,8 +165,9 @@ private:
     GLFWwindow* window;
     
     // Timer
-    Timer timer;
-    float time;
+    Timer   timer;
+    float   time;
+    size_t  step;
     
     Program* visualize;
     Program* runge_kutta;

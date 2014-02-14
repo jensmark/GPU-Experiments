@@ -16,10 +16,10 @@ uniform float dx;
 uniform float dy;
 
 void main(){
-    vec4 FE = textureOffset(FHalfTex, uv, ivec2(1,0));
-    vec4 FW = texture(FHalfTex, uv);
-    vec4 GN = textureOffset(GHalfTex, uv, ivec2(0,1));
-    vec4 GS = texture(GHalfTex, uv);
+    vec4 FE = texture(FHalfTex, uv);
+    vec4 FW = textureOffset(FHalfTex, uv, ivec2(-1,0));
+    vec4 GN = texture(GHalfTex, uv);
+    vec4 GS = textureOffset(GHalfTex, uv, ivec2(0,-1));
     
     vec4 L  = -((FE-FW)/dx+(GN-GS)/dy);
     
