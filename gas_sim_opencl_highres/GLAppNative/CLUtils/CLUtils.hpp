@@ -72,6 +72,15 @@ namespace CLUtils {
         }
     }
     
+    inline void releaseContext(CLcontext& c){
+        clFinish(c.queue);
+        clFlush(c.queue);
+        
+        clReleaseCommandQueue(c.queue);
+        clReleaseDevice(c.device);
+        clReleaseContext(c.context);
+    }
+    
 }; //Namespace CLUtils
 
 #include "MO.hpp"

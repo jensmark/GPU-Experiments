@@ -47,29 +47,44 @@ namespace CLUtils {
     
     class Program {
     public:
-        Program(CLcontext& context, std::string file, std::string kernel) {
+        Program(CLcontext& context, std::string file, std::string* options = NULL) {
             cl_int err;
             
             const char* temp = readFile(file).c_str();
             const char* source[] = {temp};
-            clCreateProgramWithSource(context.context, 1, source, NULL, &err);
+            prog = clCreateProgramWithSource(context.context, 1, source, NULL, &err);
             if(err != CL_SUCCESS){
                 THROW_EXCEPTION("Failed to create program");
             }
             
-            compile(context.device);
-            createKernel(kernel);
+            compile(context.device, options);
         }
         
-        cl_kernel& getKernel(){
+        cl_kernel createKernel(std::string func) {
+            cl_int err;
+            
+            cl_kernel kernel = clCreateKernel(prog, func.c_str(), &err);
+            if(err != CL_SUCCESS) {
+                THROW_EXCEPTION("Failed to create kernel");
+            }
+            
             return kernel;
         }
 
+        ~Program(){
+            clReleaseProgram(prog);
+        }
+
     private:
-        void compile(cl_device_id device) {
+        void compile(cl_device_id device, std::string* options) {
             cl_int err;
             
-            err = clBuildProgram(prog, 1, &device, NULL, NULL, NULL);
+            const char* opts = NULL;
+            if(options != NULL){
+                opts = options->c_str();
+            }
+            
+            err = clBuildProgram(prog, 1, &device, opts, NULL, NULL);
             if(err != CL_SUCCESS){
                 std::stringstream ss;
                 ss << "Kernel failed to compile.\n";
@@ -90,19 +105,6 @@ namespace CLUtils {
                 THROW_EXCEPTION(ss.str());
             }
         }
-        
-        cl_kernel createKernel(std::string& src) {
-            cl_int err;
-            
-            cl_kernel kernel = clCreateKernel(prog, src.c_str(), &err);
-            if(err != CL_SUCCESS) {
-                THROW_EXCEPTION("Failed to create kernel");
-            }
-            
-            return kernel;
-        }
-        
-        cl_kernel kernel;
         cl_program prog;
     };
     

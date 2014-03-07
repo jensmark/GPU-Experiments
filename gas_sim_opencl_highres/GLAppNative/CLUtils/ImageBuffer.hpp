@@ -8,14 +8,11 @@ namespace CLUtils {
     template <cl_mem_flags T>
     class ImageBuffer {
     public:
-        ImageBuffer(CLcontext context, unsigned short components, unsigned short width, unsigned short height, size_t bytes, void* data) {
+        ImageBuffer(CLcontext context, unsigned short width, unsigned short height, void* data) {
             cl_int err;
             
             cl_image_format format;
-            if(components == 4)
-                format.image_channel_order = CL_RGBA;
-            else
-                format.image_channel_order = CL_RGB;
+            format.image_channel_order = CL_RGBA;
             format.image_channel_data_type = CL_FLOAT;
             
             cl_image_desc desc;
@@ -29,13 +26,33 @@ namespace CLUtils {
             }
         }
         
-        ImageBuffer(CLcontext context, GLuint texture){
+        ImageBuffer(CLcontext context, const GLuint& texture){
             cl_int err;
             
             image = clCreateFromGLTexture(context.context, T, GL_TEXTURE_2D, 0, texture, &err);
             if(err != CL_SUCCESS){
                 THROW_EXCEPTION("Failed to create memory object");
             }
+        }
+        
+        ImageBuffer(CLcontext context, GLuint& texture, unsigned short width, unsigned short height, void* data = NULL){
+            
+            cl_int err;
+            
+            glGenTextures(1, &texture);
+            glBindTexture(GL_TEXTURE_2D, texture);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, data);
+            
+            image = clCreateFromGLTexture(context.context, T, GL_TEXTURE_2D, 0, texture, &err);
+            if(err != CL_SUCCESS){
+                THROW_EXCEPTION("Failed to create memory object");
+            }
+            
+            glBindTexture(GL_TEXTURE_2D, 0);
         }
         
         ~ImageBuffer() {

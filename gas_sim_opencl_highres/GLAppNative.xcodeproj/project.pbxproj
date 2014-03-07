@@ -26,6 +26,7 @@
 		82039AD9186F6672000A0A55 /* kernel.vert in CopyFiles */ = {isa = PBXBuildFile; fileRef = 82039AD0186F65E0000A0A55 /* kernel.vert */; };
 		82039ADB186F6672000A0A55 /* visualize.frag in CopyFiles */ = {isa = PBXBuildFile; fileRef = 82039AD2186F65E0000A0A55 /* visualize.frag */; };
 		82039ADE186F6C07000A0A55 /* AppManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 82039ADD186F6C07000A0A55 /* AppManager.cpp */; };
+		82D86D4918B778040022D333 /* compute_program.cl in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8200F57A189852F9003F1318 /* compute_program.cl */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -35,6 +36,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
+				82D86D4918B778040022D333 /* compute_program.cl in CopyFiles */,
 				82039AD9186F6672000A0A55 /* kernel.vert in CopyFiles */,
 				82039ADB186F6672000A0A55 /* visualize.frag in CopyFiles */,
 			);
