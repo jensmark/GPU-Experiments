@@ -176,6 +176,7 @@ private:
     Program* copy;
     Program* boundary;
     Program* eigen;
+    Program* gradient;
     
     BO<GL_ARRAY_BUFFER>* vert;
     BO<GL_ELEMENT_ARRAY_BUFFER>* ind;
@@ -185,6 +186,7 @@ private:
     TextureFBO* reconstructKernel;
     TextureFBO* fluxKernel;
     TextureFBO* dtKernel;
+    TextureFBO* gradKernel;
     
     GLuint vao[2];
 };

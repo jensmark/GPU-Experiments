@@ -22,6 +22,7 @@
 		82A3EC7718A4E6060085CA95 /* boundary.frag in CopyFiles */ = {isa = PBXBuildFile; fileRef = 82A3EC7518A4E3C70085CA95 /* boundary.frag */; };
 		82A3EC7818A4E6060085CA95 /* boundary_kernel.vert in CopyFiles */ = {isa = PBXBuildFile; fileRef = 82A3EC7618A4E4F50085CA95 /* boundary_kernel.vert */; };
 		82D263FC18A5338D00396AAC /* eigenvalue.frag in CopyFiles */ = {isa = PBXBuildFile; fileRef = 82D263FB18A52CCD00396AAC /* eigenvalue.frag */; };
+		82D86D4818AF95060022D333 /* gradients.frag in CopyFiles */ = {isa = PBXBuildFile; fileRef = 82B53E6518AF91E100CF5489 /* gradients.frag */; };
 		82E27945187221D200157294 /* RK.frag in CopyFiles */ = {isa = PBXBuildFile; fileRef = 82E279441872180200157294 /* RK.frag */; };
 		82E2794B1872282600157294 /* bilin_reconstruction.frag in CopyFiles */ = {isa = PBXBuildFile; fileRef = 82E279461872238100157294 /* bilin_reconstruction.frag */; };
 		82E2794C1872282600157294 /* comp_flux.frag in CopyFiles */ = {isa = PBXBuildFile; fileRef = 82E27948187227EA00157294 /* comp_flux.frag */; };
@@ -34,6 +35,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 16;
 			files = (
+				82D86D4818AF95060022D333 /* gradients.frag in CopyFiles */,
 				82D263FC18A5338D00396AAC /* eigenvalue.frag in CopyFiles */,
 				82A3EC7718A4E6060085CA95 /* boundary.frag in CopyFiles */,
 				82A3EC7818A4E6060085CA95 /* boundary_kernel.vert in CopyFiles */,
@@ -71,6 +73,7 @@
 		82039AE018704EBD000A0A55 /* copy.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = copy.frag; path = shaders/copy.frag; sourceTree = "<group>"; };
 		82A3EC7518A4E3C70085CA95 /* boundary.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = boundary.frag; path = shaders/boundary.frag; sourceTree = "<group>"; };
 		82A3EC7618A4E4F50085CA95 /* boundary_kernel.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = boundary_kernel.vert; path = shaders/boundary_kernel.vert; sourceTree = "<group>"; };
+		82B53E6518AF91E100CF5489 /* gradients.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = gradients.frag; path = shaders/gradients.frag; sourceTree = "<group>"; };
 		82D263FB18A52CCD00396AAC /* eigenvalue.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = eigenvalue.frag; path = shaders/eigenvalue.frag; sourceTree = "<group>"; };
 		82E279441872180200157294 /* RK.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = RK.frag; path = shaders/RK.frag; sourceTree = "<group>"; };
 		82E279461872238100157294 /* bilin_reconstruction.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; name = bilin_reconstruction.frag; path = shaders/bilin_reconstruction.frag; sourceTree = "<group>"; };
@@ -162,6 +165,7 @@
 				82A3EC7518A4E3C70085CA95 /* boundary.frag */,
 				82A3EC7618A4E4F50085CA95 /* boundary_kernel.vert */,
 				82D263FB18A52CCD00396AAC /* eigenvalue.frag */,
+				82B53E6518AF91E100CF5489 /* gradients.frag */,
 			);
 			name = shaders;
 			sourceTree = "<group>";

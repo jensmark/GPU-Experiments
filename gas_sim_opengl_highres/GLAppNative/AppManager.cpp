@@ -69,6 +69,8 @@ void AppManager::quit(){
     delete flux_evaluator;
     delete boundary;
     delete eigen;
+    delete gradKernel;
+    delete gradient;
     
     for (size_t i = 0; i <= N_RK; i++) {
         delete kernelRK[i];
@@ -104,8 +106,8 @@ void AppManager::applyInitial(){
         for (size_t j = 0; j < Ny; j++) {
             // temp
             size_t k = (Nx * j + i)*4;
-            data[k] = 0.2f;
-            data[k+3]   = E(data[k], 0.0f, 0.0f, gamma, 0.1f);
+            data[k] = 1.0f;
+            data[k+3]   = E(data[k], 0.0f, 0.0f, gamma, 1.0f);
             
             // populate circle
             const glm::vec2 center = glm::vec2(0.3f,0.5f);
@@ -114,15 +116,16 @@ void AppManager::applyInitial(){
             
             if (glm::distance(glm::vec2((float)i/(float)Nx,(float)j/(float)Ny), center) <= radius) {
                 data[k]     = 0.1f;
-                data[k+3]   = E(data[k], 0.0f, 0.0f, gamma, 0.1f);
-            }else if(x <= 0.05f){
-                data[k]     = 0.3f;
-                data[k+1]   = 0.3f*1.0f;
-                data[k+3]   = E(data[k], 1.0f, 0.0f, gamma, 10.0f);
+                data[k+3]   = E(data[k], 0.0f, 0.0f, gamma, 1.0f);
+            }else if(x <= 0.0f){
+                data[k]     = 3.81250;
+                data[k+1]   = data[k]*2.57669250441241;
+                data[k+3]   = E(data[k], data[k+1]/data[k], 0.0f, gamma, 10.0f);
             }
 
         }
     }
+    
     
     /*for (size_t j = 0; j < Ny; j++) {
         for (size_t i = 0; i < Nx; i++) {
@@ -141,10 +144,61 @@ void AppManager::applyInitial(){
     // 2D Riemann condition
     //glm::vec4 Q[4];
     
+    /*
+     //
+     // Riemann problem 1
+     //
+     Q[0].x = 1.0f;
+     Q[0].y = 0.0f;
+     Q[0].z = 0.0f;
+     Q[0].w = E(1.0f, 0.0f, 0.0f, gamma, 1.0f);
+     
+     Q[1].x = 0.5197f;
+     Q[1].y = 0.5197f*-0.7259f;
+     Q[1].z = 0.0f;
+     Q[1].w = E(0.5197f, -0.7259f, 0.0f, gamma, 0.4f);
+     
+     Q[2].x = 0.1072f;
+     Q[2].y = 0.1072f*-0.7259f;
+     Q[2].z = 0.1072f*-1.4045f;
+     Q[2].w = E(0.1072f, -0.7259, -1.4045, gamma, 0.0439f);
+     
+     Q[3].x = 0.2579f;
+     Q[3].y = 0.0f;
+     Q[3].z = 0.2579f*-1.4045f;
+     Q[3].w = E(0.2579f, 0.0f, -1.4045f, gamma, 0.15f);
+    */
+    
+    /*
+    //
+    // Riemann problem 2
+    //
+    Q[0].x = 1.0f;
+    Q[0].y = 0.0f;
+    Q[0].z = 0.0f;
+    Q[0].w = E(1.0f, 0.0f, 0.0f, gamma, 1.0f);
+    
+    Q[1].x = 0.5197f;
+    Q[1].y = 0.5197f*-0.7259f;
+    Q[1].z = 0.0f;
+    Q[1].w = E(0.5197f, -0.7269f, 0.0f, gamma, 0.4f);
+    
+    Q[2].x = 1.0f;
+    Q[2].y = 1.0f*-0.7269f;
+    Q[2].z = 1.0f*-0.7269f;
+    Q[2].w = E(1.0f, -0.7269f, -0.7269f, gamma, 1.0f);
+    
+    Q[3].x = 0.5197f;
+    Q[3].y = 0.0f;
+    Q[3].z = 0.5197f*-0.7259f;
+    Q[3].w = E(0.5197f, 0.0f, -0.7269f, gamma, 0.4f);
+    */
+     
+    /*
     //
     // Riemann problem 3
     //
-    /*Q[0].x = 1.5f;
+    Q[0].x = 1.5f;
     Q[0].y = 0.0f;
     Q[0].z = 0.0f;
     Q[0].w = E(1.5f, 0.0f, 0.0f, gamma, 1.5f);
@@ -163,7 +217,108 @@ void AppManager::applyInitial(){
     Q[3].y = 0.0f;
     Q[3].z = 0.5323f*1.206f;
     Q[3].w = E(0.5323f, 0.0f, 1.206f, gamma, 0.3f);
+    */
     
+    /*
+    //
+    // Riemann problem 4
+    //
+    Q[0].x = 1.1f;
+    Q[0].y = 0.0f;
+    Q[0].z = 0.0f;
+    Q[0].w = E(1.1f, 0.0f, 0.0f, gamma, 1.1f);
+    
+    Q[1].x = 0.5065f;
+    Q[1].y = 0.5065f*0.8939f;
+    Q[1].z = 0.0f;
+    Q[1].w = E(0.5065f, 0.8939f, 0.0f, gamma, 0.35f);
+    
+    Q[2].x = 1.1f;
+    Q[2].y = 1.1f*0.8939f;
+    Q[2].z = 1.1f*0.8939f;
+    Q[2].w = E(1.1f, 0.8939f, 0.8939f, gamma, 1.1f);
+    
+    Q[3].x = 0.5065f;
+    Q[3].y = 0.0f;
+    Q[3].z = 0.5065f*0.8939f;
+    Q[3].w = E(0.5065f, 0.0f, 0.8939f, gamma, 0.35f);
+    */
+    
+    /*
+    //
+    // Riemann problem 5
+    //
+    Q[0].x = 1.0f;
+    Q[0].y = 1.0f*-0.75;
+    Q[0].z = 1.0f*-0.5;
+    Q[0].w = E(1.0f, -0.75, -0.5, gamma, 1.0f);
+    
+    Q[1].x = 2.0f;
+    Q[1].y = 2.0f*-0.75;
+    Q[1].z = 2.0f*0.5;
+    Q[1].w = E(2.0f, -0.75, 0.5, gamma, 1.0f);
+    
+    Q[2].x = 1.0f;
+    Q[2].y = 1.0f*0.75;
+    Q[2].z = 1.0f*0.5;
+    Q[2].w = E(1.0f, 0.75, 0.5, gamma, 1.0f);
+    
+    Q[3].x = 3.0f;
+    Q[3].y = 3.0f*0.75;
+    Q[3].z = 3.0f*-0.5;
+    Q[3].w = E(3.0f, 0.75, -0.5, gamma, 1.0f);
+    */
+    
+    /*
+    //
+    // Riemann problem 6
+    //
+    Q[0].x = 1.0f;
+    Q[0].y = 1.0f*0.75;
+    Q[0].z = 1.0f*-0.5;
+    Q[0].w = E(1.0f, 0.75, -0.5, gamma, 1.0f);
+    
+    Q[1].x = 2.0f;
+    Q[1].y = 2.0f*0.75;
+    Q[1].z = 2.0f*0.5;
+    Q[1].w = E(2.0f, 0.75, 0.5, gamma, 1.0f);
+    
+    Q[2].x = 1.0f;
+    Q[2].y = 1.0f*-0.75;
+    Q[2].z = 1.0f*0.5;
+    Q[2].w = E(1.0f, -0.75, 0.5, gamma, 1.0f);
+    
+    Q[3].x = 3.0f;
+    Q[3].y = 3.0f*-0.75;
+    Q[3].z = 3.0f*-0.5;
+    Q[3].w = E(3.0f, -0.75, -0.5, gamma, 1.0f);
+    */
+    /*
+    //
+    // Riemann problem 11
+    //
+    Q[0].x = 1.0f;
+    Q[0].y = 1.0f*0.1f;
+    Q[0].z = 0.0f;
+    Q[0].w = E(1.0f, 0.1f, 0.0f, gamma, 1.0f);
+    
+    Q[1].x = 0.5313f;
+    Q[1].y = 0.5313f*0.8276f;
+    Q[1].z = 0.0f;
+    Q[1].w = E(0.5313f, 0.8276f, 0.0f, gamma, 0.4f);
+    
+    Q[2].x = 0.8f;
+    Q[2].y = 0.8f*0.1f;
+    Q[2].z = 0.0f;
+    Q[2].w = E(0.8f, 0.1f, 0.0f, gamma, 0.4f);
+    
+    Q[3].x = 0.5313f;
+    Q[3].y = 0.5313f*0.1f;
+    Q[3].z = 0.5313f*0.7276f;
+    Q[3].w = E(0.5313f, 0.1f, 0.7276f, gamma, 0.4f);
+    */
+    
+    /*
     for (size_t i = 0; i < Nx; i++) {
         for (size_t j = 0; j < Ny; j++) {
             size_t k = (Nx * j + i)*4;
@@ -194,7 +349,8 @@ void AppManager::applyInitial(){
                 data[k+3]   = Q[3].w;
             }
         }
-    }*/
+    }
+    */
     
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, Nx, Ny,
                  0, GL_RGBA, GL_FLOAT, data.data());
@@ -421,20 +577,54 @@ void AppManager::runKernel(){
 void AppManager::render(){
     runKernel();
     
-    glViewport(0, 0, window_width*2, window_height*2);
-    visualize->use();
+    gradKernel->bind();
+    glViewport(0, 0, Nx, Ny);
+    
+    gradient->use();
     
     float dx = (1.0f/(float)Nx);
     float dy = (1.0f/(float)Ny);
     
-    glUniform1f(visualize->getUniform("dx"),dx);
-    glUniform1f(visualize->getUniform("dy"),dy);
+    //set uniforms
+    glUniform1f(gradient->getUniform("dx"),dx);
+    glUniform1f(gradient->getUniform("dy"),dy);
     
-    glUniform1i(visualize->getUniform("QTex"), 0);
+    glUniform1i(gradient->getUniform("QTex"), 0);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, kernelRK[N_RK]->getTexture(0));
-    //glBindTexture(GL_TEXTURE_2D, fluxKernel->getTexture(0));
-    //glBindTexture(GL_TEXTURE_2D, reconstructKernel->getTexture(0));
+    
+    glBindVertexArray(vao[0]);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, NULL);
+    glBindVertexArray(0);
+    
+    gradient->disuse();
+    gradKernel->unbind();
+    
+    /*
+    glBindTexture(GL_TEXTURE_2D, gradKernel->getTexture());
+    
+    std::vector<GLfloat> data(Nx*Ny*4);
+    glGetTexImage(GL_TEXTURE_2D,0,GL_RGBA,GL_FLOAT,&data[0]);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
+    float grad = -std::numeric_limits<float>().max();
+    for (size_t x = 0; x < Nx; x++) {
+        for (size_t y = 0; y < Ny; y++) {
+            size_t k = (Nx * y + x)*4;
+            grad = glm::max(grad, data[k]);
+        }
+    }
+    */
+    
+    glViewport(0, 0, window_width*2, window_height*2);
+    visualize->use();
+    
+    //glUniform1f(visualize->getUniform("maxGrad"),grad);
+    
+    glUniform1i(visualize->getUniform("gradients"), 0);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, gradKernel->getTexture(0));
+    //glBindTexture(GL_TEXTURE_2D, fluxKernel->getTexture(1));
     
     glBindVertexArray(vao[0]);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, NULL);
@@ -662,6 +852,7 @@ void AppManager::createProgram(){
     bilinear_recon  = new Program("kernel.vert","bilin_reconstruction.frag");
     boundary        = new Program("boundary_kernel.vert","boundary.frag");
     eigen           = new Program("kernel.vert","eigenvalue.frag");
+    gradient        = new Program("kernel.vert","gradients.frag");
     
     //Set uniforms
 
@@ -743,6 +934,7 @@ void AppManager::createFBO(){
     fluxKernel          = new TextureFBO(Nx,Ny,2);
     
     dtKernel            = new TextureFBO(Nx,Ny);
+    gradKernel          = new TextureFBO(Nx,Ny);
     
     CHECK_GL_ERRORS();
 }
