@@ -40,12 +40,32 @@ void storef(__global float* array, float value, unsigned int x, unsigned int y){
  *
  ****/
 float3 fflux(float g, float3 Q){
-    float u = Q.y/Q.x;
+    if(Q.x <= 1.19e-07f){
+        return (float3)(0.0f, 0.0f, 0.0f);
+    }
+    
+    float k = 1e-10f*max(1.0f,min(1.0f/(float)(Nx),1.0f/(float)(Ny)));
+    float u = 0.0f;
+    if(Q.x < k){
+        u = (sqrt(2.0f)*Q.x*Q.y)/(sqrt(pow(Q.x,4.0f)+max(pow(Q.x,4.0),k)));
+    }else{
+        u = Q.y/Q.x;
+    }
     return (float3)(Q.y, (Q.y*u)+0.5f*g*(Q.x*Q.x), Q.z*u);
 }
 
 float3 gflux(float g, float3 Q){
-    float v = Q.z/Q.x;
+    if(Q.x <= 1.19e-07f){
+        return (float3)(0.0f, 0.0f, 0.0f);
+    }
+    
+    float k = 1e-10f*max(1.0f,min(1.0f/(float)(Nx),1.0f/(float)(Ny)));
+    float v = 0.0f;
+    if(Q.x < k){
+        v = (sqrt(2.0f)*Q.x*Q.z)/(sqrt(pow(Q.x,4.0f)+max(pow(Q.x,4.0),k)));
+    }else{
+        v = Q.z/Q.x;
+    }
     return (float3)(Q.z, Q.y*v, (Q.z*v)+0.5f*g*(Q.x*Q.x));
 }
 
@@ -176,7 +196,7 @@ __kernel void computeRK(__global float3* Q_in, __global float3* Qk_in, __global 
 float3 evaluateAt(float g, float2 pos){
     float3 value = (float3)(2.0f,0.0f,0.0f);
     
-    value.x = value.x + 1.0*exp(-pow((2.0f*(pos.x-0.5f)),2.0f)/(2.0f*pow(0.3f,2.0f))
+    value.x = value.x + 1.5*exp(-pow((2.0f*(pos.x-0.5f)),2.0f)/(2.0f*pow(0.3f,2.0f))
                             -pow((2.0f*(pos.y-0.5f)),2.0f)/(2.0f*pow(0.3f,2.0f)));
     
     return value;
@@ -214,67 +234,35 @@ __kernel void setBoundsX(__global float3* Q){
     unsigned int Nx0 = Nx+4;
     unsigned int Ny0 = Ny+4;
     
-    float pos0  = (float)2/(float)Ny0;
-    float pos1  = (float)3/(float)Ny0;
-    float pos2  = (float)4/(float)Ny0;
-    
     unsigned int k0 = (Nx0 * 1 + i);
     unsigned int k1 = (Nx0 * 2 + i);
     unsigned int k2 = (Nx0 * 3 + i);
-    unsigned int k3 = (Nx0 * 4 + i);
     //Q[k0] = Q[k1] = Q[k2];
-    //Q[k0] = Q[k1] = (float3)(Q[k2].x,Q[k2].y,-Q[k2].z);
-    float3 value = Q[k3]+((pos0-pos2)/pos1-pos2)*(Q[k2]-Q[k3]);
-    value.z = -value.z;
-    Q[k0] = Q[k1] = value;
-    
-    pos0  = (float)(Ny0-2)/(float)Ny0;
-    pos1  = (float)(Ny0-3)/(float)Ny0;
-    pos2  = (float)(Ny0-4)/(float)Ny0;
+    Q[k0] = Q[k1] = (float3)(Q[k2].x,Q[k2].y,-Q[k2].z);
     
     k0 = (Nx0 * (Ny0-1) + i);
     k1 = (Nx0 * (Ny0-2) + i);
     k2 = (Nx0 * (Ny0-3) + i);
-    k3 = (Nx0 * (Ny0-4) + i);
     //Q[k0] = Q[k1] = Q[k2];
-    //Q[k0] = Q[k1] = (float3)(Q[k2].x,Q[k2].y,-Q[k2].z);
-    value = Q[k3]+((pos0-pos2)/pos1-pos2)*(Q[k2]-Q[k3]);
-    value.z = -value.z;
-    Q[k0] = Q[k1] = value;
+    Q[k0] = Q[k1] = (float3)(Q[k2].x,Q[k2].y,-Q[k2].z);
 }
 __kernel void setBoundsY(__global float3* Q){
     unsigned int i = get_global_id(0);
     
     unsigned int Nx0 = Nx+4;
     unsigned int Ny0 = Ny+4;
-    
-    float pos0  = (float)2/(float)Nx0;
-    float pos1  = (float)3/(float)Nx0;
-    float pos2  = (float)4/(float)Nx0;
 
     unsigned int k0 = (Nx0 * i + 1);
     unsigned int k1 = (Nx0 * i + 2);
     unsigned int k2 = (Nx0 * i + 3);
-    unsigned int k3 = (Nx0 * i + 4);
     //Q[k0] = Q[k1] = Q[k2];
-    //Q[k0] = Q[k1] = (float3)(Q[k2].x,-Q[k2].y,Q[k2].z);
-    float3 value = Q[k3]+((pos0-pos2)/pos1-pos2)*(Q[k2]-Q[k3]);
-    value.y = -value.y;
-    Q[k0] = Q[k1] = value;
-    
-    pos0  = (float)(Nx0-2)/(float)Nx0;
-    pos1  = (float)(Nx0-3)/(float)Nx0;
-    pos2  = (float)(Nx0-4)/(float)Nx0;
+    Q[k0] = Q[k1] = (float3)(Q[k2].x,-Q[k2].y,Q[k2].z);
     
     k0 = (Nx0 * i + (Nx0-1));
     k1 = (Nx0 * i + (Nx0-2));
     k2 = (Nx0 * i + (Nx0-3));
-    k3 = (Nx0 * i + (Nx0-4));
     //Q[k0] = Q[k1] = Q[k2];
-    //Q[k0] = Q[k1] = (float3)(Q[k2].x,-Q[k2].y,Q[k2].z);
-    value = Q[k3]+((pos0-pos2)/pos1-pos2)*(Q[k2]-Q[k3]);
-    value.y = -value.y;
-    Q[k0] = Q[k1] = value;
+    Q[k0] = Q[k1] = (float3)(Q[k2].x,-Q[k2].y,Q[k2].z);
 }
 
 /****

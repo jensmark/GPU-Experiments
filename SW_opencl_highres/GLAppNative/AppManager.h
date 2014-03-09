@@ -186,6 +186,9 @@ private:
     unsigned int restart_token;
     unsigned int indices_count;
     
+    float h_min;
+    float h_max;
+    
     GLuint vao;
     
     glm::mat4 model;

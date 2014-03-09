@@ -140,7 +140,7 @@ void AppManager::setBoundary(CLUtils::MO<CL_MEM_READ_WRITE>* Qn){
 
 float AppManager::computeDt(CLUtils::MO<CL_MEM_READ_WRITE>* Qn){
     cl_int err = CL_SUCCESS;
-    static const float CFL = 0.5f;
+    static const float CFL = 0.8f;
     
     err |= clSetKernelArg(compute_eigenvalues, 0, sizeof(cl_mem), &(Qn->getRef()));
     err |= clSetKernelArg(compute_eigenvalues, 1, sizeof(cl_float), &gravity);
@@ -308,6 +308,21 @@ void AppManager::render(){
         THROW_EXCEPTION("Failed!");
     }
     
+    std::vector<cl_float> data((Nx+4)*(Ny+4)*4);
+    clEnqueueReadBuffer(context.queue, Q_set[N_RK]->getRef(), CL_TRUE, 0,
+                        (Nx+4)*(Nx+4)*sizeof(cl_float4), data.data(), 0, NULL, NULL);
+    h_max    = -std::numeric_limits<float>().max();
+    h_min    = std::numeric_limits<float>().max();
+    for (size_t x = 2; x < Nx; x++) {
+        for (size_t y = 2; y < Ny; y++) {
+            size_t k = ((Nx+4) * y + x)*4;
+            
+            h_max = glm::max(h_max,data[k]);
+            h_min = glm::min(h_min,data[k]);
+        }
+    }
+
+    
     clFinish(context.queue);
     
     glViewport(0, 0, window_width*2, window_height*2);
@@ -318,6 +333,8 @@ void AppManager::render(){
     
     glUniform1i(visualize->getUniform("tex"),0);
     glUniform2fv(visualize->getUniform("dxy"),1,glm::value_ptr(glm::vec2((1.0f/(float)Nx),(1.0f/(float)Ny))));
+    glUniform2fv(visualize->getUniform("h_minmax"),1,glm::value_ptr(glm::vec2((float)h_min,(float)h_max)));
+
     glUniformMatrix4fv(visualize->getUniform("projection_matrix"), 1, 0, glm::value_ptr(camera.projection));
     glUniformMatrix4fv(visualize->getUniform("model_matrix"), 1, 0, glm::value_ptr(model));
     glUniformMatrix4fv(visualize->getUniform("view_matrix"), 1, 0, glm::value_ptr(view_matrix_new));
