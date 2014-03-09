@@ -7,30 +7,30 @@ float3  gflux(float g, float3 Q);
 float3  xFlux(float k, float g, float3 Q, float3 Q1, float3 Sx, float3 Sy, float3 Sxp, float3 Syp);
 float3  yFlux(float k, float g, float3 Q, float3 Q1, float3 Sx, float3 Sy, float3 Sxp, float3 Syp);
 float3  minmod(float3 a, float3 b);
-float3  fetch(__global float3* array, unsigned int x, unsigned int y);
-float   fetchf(__global float* array, unsigned int x, unsigned int y);
-void    store(__global float3* array, float3 value, unsigned int x, unsigned int y);
-void    storef(__global float* array, float value, unsigned int x, unsigned int y);
+float3  fetch(__global float3* array, unsigned int x, unsigned int y, unsigned int offset);
+float   fetchf(__global float* array, unsigned int x, unsigned int y, unsigned int offset);
+void    store(__global float3* array, float3 value, unsigned int x, unsigned int y, unsigned int offset);
+void    storef(__global float* array, float value, unsigned int x, unsigned int y, unsigned int offset);
 
 /****
  *
  * Utils
  *
  ****/
-float3 fetch(__global float3* array, unsigned int x, unsigned int y){
-    unsigned int k = ((Nx+4) * (y+2) + (x+2));
+float3 fetch(__global float3* array, unsigned int x, unsigned int y, unsigned int offset){
+    unsigned int k = ((Nx+4) * (y+offset) + (x+offset));
     return array[k];
 }
-float fetchf(__global float* array, unsigned int x, unsigned int y){
-    unsigned int k = ((Nx+4) * (y+2) + (x+2));
+float fetchf(__global float* array, unsigned int x, unsigned int y, unsigned int offset){
+    unsigned int k = ((Nx+4) * (y+offset) + (x+offset));
     return array[k];
 }
-void store(__global float3* array, float3 value, unsigned int x, unsigned int y){
-    unsigned int k = ((Nx+4) * (y+2) + (x+2));
+void store(__global float3* array, float3 value, unsigned int x, unsigned int y, unsigned int offset){
+    unsigned int k = ((Nx+4) * (y+offset) + (x+offset));
     array[k] = value;
 }
-void storef(__global float* array, float value, unsigned int x, unsigned int y){
-    unsigned int k = ((Nx+4) * (y+2) + (x+2));
+void storef(__global float* array, float value, unsigned int x, unsigned int y, unsigned int offset){
+    unsigned int k = ((Nx+4) * (y+offset) + (x+offset));
     array[k] = value;
 }
 
@@ -44,14 +44,14 @@ float3 fflux(float g, float3 Q){
         return (float3)(0.0f, 0.0f, 0.0f);
     }
     
-    float k = 1e-10f*max(1.0f,min(1.0f/(float)(Nx),1.0f/(float)(Ny)));
+    float k = 1e-1f*max(1.0f,min(1.0f/(float)(Nx),1.0f/(float)(Ny)));
     float u = 0.0f;
     if(Q.x < k){
         u = (sqrt(2.0f)*Q.x*Q.y)/(sqrt(pow(Q.x,4.0f)+max(pow(Q.x,4.0),k)));
     }else{
         u = Q.y/Q.x;
     }
-    return (float3)(Q.y, (Q.y*u)+0.5f*g*(Q.x*Q.x), Q.z*u);
+    return (float3)(Q.y, (Q.y*u)+(0.5f*g*Q.x*Q.x), Q.z*u);
 }
 
 float3 gflux(float g, float3 Q){
@@ -59,14 +59,14 @@ float3 gflux(float g, float3 Q){
         return (float3)(0.0f, 0.0f, 0.0f);
     }
     
-    float k = 1e-10f*max(1.0f,min(1.0f/(float)(Nx),1.0f/(float)(Ny)));
+    float k = 1e-1f*max(1.0f,min(1.0f/(float)(Nx),1.0f/(float)(Ny)));
     float v = 0.0f;
     if(Q.x < k){
         v = (sqrt(2.0f)*Q.x*Q.z)/(sqrt(pow(Q.x,4.0f)+max(pow(Q.x,4.0),k)));
     }else{
         v = Q.z/Q.x;
     }
-    return (float3)(Q.z, Q.y*v, (Q.z*v)+0.5f*g*(Q.x*Q.x));
+    return (float3)(Q.z, Q.y*v, (Q.z*v)+(0.5f*g*Q.x*Q.x));
 }
 
 float3 xFlux(float k, float g, float3 Q, float3 Q1, float3 Sx, float3 Sy, float3 Sxp, float3 Syp){
@@ -120,21 +120,21 @@ __kernel void computeNumericalFlux(__global float3* Q_in, __global float3* Sx_in
     
     const float k = 0.2886751346f;
     
-    float3 Q    = fetch(Q_in,x,y);
-    float3 Sx   = fetch(Sx_in,x,y);
-    float3 Sy   = fetch(Sy_in,x,y);
+    float3 Q    = fetch(Q_in,x,y,1);
+    float3 Sx   = fetch(Sx_in,x,y,1);
+    float3 Sy   = fetch(Sy_in,x,y,1);
     
-    float3 Q1   = fetch(Q_in,x+1,y);
-    float3 Sxp  = fetch(Sx_in,x+1,y);
-    float3 Syp  = fetch(Sy_in,x+1,y);
+    float3 Q1   = fetch(Q_in,x+1,y,1);
+    float3 Sxp  = fetch(Sx_in,x+1,y,1);
+    float3 Syp  = fetch(Sy_in,x+1,y,1);
     
-    store(F_out, xFlux(k, g, Q, Q1, Sx, Sy, Sxp, Syp), x, y);
+    store(F_out, xFlux(k, g, Q, Q1, Sx, Sy, Sxp, Syp), x, y, 1);
     
-    Q1   = fetch(Q_in,x,y+1);
-    Sxp  = fetch(Sx_in,x,y+1);
-    Syp  = fetch(Sy_in,x,y+1);
+    Q1   = fetch(Q_in,x,y+1,1);
+    Sxp  = fetch(Sx_in,x,y+1,1);
+    Syp  = fetch(Sy_in,x,y+1,1);
     
-    store(G_out, yFlux(k, g, Q, Q1, Sx, Sy, Sxp, Syp), x, y);
+    store(G_out, yFlux(k, g, Q, Q1, Sx, Sy, Sxp, Syp), x, y, 1);
 }
 
 
@@ -153,14 +153,14 @@ __kernel void piecewiseReconstruction(__global float3* Q_in,
     unsigned int x = get_global_id(0);
     unsigned int y = get_global_id(1);
     
-    float3 Q    = fetch(Q_in,x,y);
-    float3 QE   = fetch(Q_in,x+1,y);
-    float3 QW   = fetch(Q_in,x-1,y);
-    float3 QN   = fetch(Q_in,x,y+1);
-    float3 QS   = fetch(Q_in,x,y-1);
+    float3 Q    = fetch(Q_in,x,y,1);
+    float3 QE   = fetch(Q_in,x+1,y,1);
+    float3 QW   = fetch(Q_in,x-1,y,1);
+    float3 QN   = fetch(Q_in,x,y+1,1);
+    float3 QS   = fetch(Q_in,x,y-1,1);
     
-    store(Sx_out, minmod(Q-QW,QE-Q), x, y);
-    store(Sy_out, minmod(Q-QS,QN-Q), x, y);
+    store(Sx_out, minmod(Q-QW,QE-Q), x, y, 1);
+    store(Sy_out, minmod(Q-QS,QN-Q), x, y, 1);
 }
 
 /****
@@ -173,18 +173,18 @@ __kernel void computeRK(__global float3* Q_in, __global float3* Qk_in, __global 
     unsigned int x = get_global_id(0);
     unsigned int y = get_global_id(1);
     
-    float3 FE   = fetch(F_in,x,y);
-    float3 FW   = fetch(F_in,x-1,y);
-    float3 GN   = fetch(G_in,x,y);
-    float3 GS   = fetch(G_in,x,y-1);
+    float3 FE   = fetch(F_in,x,y,2);
+    float3 FW   = fetch(F_in,x-1,y,2);
+    float3 GN   = fetch(G_in,x,y,2);
+    float3 GS   = fetch(G_in,x,y-1,2);
     
     float3 L    = -((FE-FW)/dXY.x+(GN-GS)/dXY.y);
     
-    float3 Q    = fetch(Q_in,x,y);
-    float3 Qk   = fetch(Qk_in,x,y);
+    float3 Q    = fetch(Q_in,x,y,2);
+    float3 Qk   = fetch(Qk_in,x,y,2);
     
     float3 v    = c.x*Q+c.y*(Qk+dT*L);
-    store(Q_out, v, x, y);
+    store(Q_out, v, x, y,2);
 }
 
 
@@ -196,8 +196,8 @@ __kernel void computeRK(__global float3* Q_in, __global float3* Qk_in, __global 
 float3 evaluateAt(float g, float2 pos){
     float3 value = (float3)(2.0f,0.0f,0.0f);
     
-    value.x = value.x + 1.5*exp(-pow((2.0f*(pos.x-0.5f)),2.0f)/(2.0f*pow(0.3f,2.0f))
-                            -pow((2.0f*(pos.y-0.5f)),2.0f)/(2.0f*pow(0.3f,2.0f)));
+    value.x = value.x + 1.4*exp(-pow((2.0f*(pos.x-0.5f)),2.0f)/(2.0f*pow(0.2f,2.0f))
+                            -pow((2.0f*(pos.y-0.5f)),2.0f)/(2.0f*pow(0.2f,2.0f)));
     
     return value;
 }
@@ -220,7 +220,7 @@ __kernel void setInitial(float g, float2 dXY, __global float3* Q_out){
     float3 value2 = evaluateAt(g, pos2);
     float3 value3 = evaluateAt(g, pos3);
 
-    store(Q_out,(value0+value1+value2+value3)*0.25f,x,y);
+    store(Q_out,(value0+value1+value2+value3)*0.25f,x,y,2);
 }
 
 /****
@@ -234,15 +234,15 @@ __kernel void setBoundsX(__global float3* Q){
     unsigned int Nx0 = Nx+4;
     unsigned int Ny0 = Ny+4;
     
-    unsigned int k0 = (Nx0 * 1 + i);
-    unsigned int k1 = (Nx0 * 2 + i);
-    unsigned int k2 = (Nx0 * 3 + i);
+    unsigned int k0 = (Nx0 * 0 + (i+2));
+    unsigned int k1 = (Nx0 * 1 + (i+2));
+    unsigned int k2 = (Nx0 * 2 + (i+2));
     //Q[k0] = Q[k1] = Q[k2];
     Q[k0] = Q[k1] = (float3)(Q[k2].x,Q[k2].y,-Q[k2].z);
     
-    k0 = (Nx0 * (Ny0-1) + i);
-    k1 = (Nx0 * (Ny0-2) + i);
-    k2 = (Nx0 * (Ny0-3) + i);
+    k0 = (Nx0 * (Ny0-1) + (i+2));
+    k1 = (Nx0 * (Ny0-2) + (i+2));
+    k2 = (Nx0 * (Ny0-3) + (i+2));
     //Q[k0] = Q[k1] = Q[k2];
     Q[k0] = Q[k1] = (float3)(Q[k2].x,Q[k2].y,-Q[k2].z);
 }
@@ -252,15 +252,15 @@ __kernel void setBoundsY(__global float3* Q){
     unsigned int Nx0 = Nx+4;
     unsigned int Ny0 = Ny+4;
 
-    unsigned int k0 = (Nx0 * i + 1);
-    unsigned int k1 = (Nx0 * i + 2);
-    unsigned int k2 = (Nx0 * i + 3);
+    unsigned int k0 = (Nx0 * (i+2) + 0);
+    unsigned int k1 = (Nx0 * (i+2) + 1);
+    unsigned int k2 = (Nx0 * (i+2) + 2);
     //Q[k0] = Q[k1] = Q[k2];
     Q[k0] = Q[k1] = (float3)(Q[k2].x,-Q[k2].y,Q[k2].z);
     
-    k0 = (Nx0 * i + (Nx0-1));
-    k1 = (Nx0 * i + (Nx0-2));
-    k2 = (Nx0 * i + (Nx0-3));
+    k0 = (Nx0 * (i+2) + (Nx0-1));
+    k1 = (Nx0 * (i+2) + (Nx0-2));
+    k2 = (Nx0 * (i+2) + (Nx0-3));
     //Q[k0] = Q[k1] = Q[k2];
     Q[k0] = Q[k1] = (float3)(Q[k2].x,-Q[k2].y,Q[k2].z);
 }
@@ -274,7 +274,7 @@ __kernel void eigenvalue(__global float3* Q_in, float g, __global float* E_out){
     unsigned int x = get_global_id(0);
     unsigned int y = get_global_id(1);
     
-    float3 Q    = fetch(Q_in, x, y);
+    float3 Q    = fetch(Q_in, x, y,2);
     float2 uv   = Q.yz/Q.x;
     float c     = sqrt(g*Q.x);
     
@@ -284,7 +284,7 @@ __kernel void eigenvalue(__global float3* Q_in, float g, __global float* E_out){
     eigen = max(fabs(uv.y)-c,fabs(eigen));
     eigen = max(fabs(uv.y)+c,fabs(eigen));
     
-    storef(E_out, eigen, x, y);
+    storef(E_out, eigen, x, y,2);
 }
 
 /****

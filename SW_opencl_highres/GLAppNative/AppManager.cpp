@@ -124,12 +124,12 @@ void AppManager::setBoundary(CLUtils::MO<CL_MEM_READ_WRITE>* Qn){
     cl_int err = CL_SUCCESS;
     
     err |= clSetKernelArg(set_boundary_x, 0, sizeof(cl_mem), &(Qn->getRef()));
-    size_t globalx[] = {Nx+4};
+    size_t globalx[] = {Nx};
     err |= clEnqueueNDRangeKernel(context.queue, set_boundary_x,
                                   1, NULL, globalx, NULL, 0, NULL, NULL);
     
     err |= clSetKernelArg(set_boundary_y, 0, sizeof(cl_mem), &(Qn->getRef()));
-    size_t globaly[] = {Ny+4};
+    size_t globaly[] = {Ny};
     err |= clEnqueueNDRangeKernel(context.queue, set_boundary_y,
                                   1, NULL, globaly, NULL, 0, NULL, NULL);
     
@@ -182,7 +182,7 @@ void AppManager::reconstruct(CLUtils::MO<CL_MEM_READ_WRITE>* Qn){
     err |= clSetKernelArg(compute_reconstruct, 1, sizeof(cl_mem), &(Sx_set->getRef()));
     err |= clSetKernelArg(compute_reconstruct, 2, sizeof(cl_mem), &(Sy_set->getRef()));
     
-    size_t global[] = {Nx,Ny};
+    size_t global[] = {Nx+2,Ny+2};
     err |= clEnqueueNDRangeKernel(context.queue, compute_reconstruct, 2,
                                   NULL, global, NULL, 0, NULL, NULL);
     
@@ -201,7 +201,7 @@ void AppManager::evaluateFluxes(CLUtils::MO<CL_MEM_READ_WRITE>* Qn){
     err |= clSetKernelArg(evaluate_flux, 4, sizeof(cl_mem), &(F_set->getRef()));
     err |= clSetKernelArg(evaluate_flux, 5, sizeof(cl_mem), &(G_set->getRef()));
     
-    size_t global[] = {Nx,Ny};
+    size_t global[] = {Nx+2,Ny+2};
     err |= clEnqueueNDRangeKernel(context.queue, evaluate_flux, 2,
                                   NULL, global, NULL, 0, NULL, NULL);
     
@@ -375,8 +375,8 @@ void AppManager::debugDownload(CLUtils::MO<CL_MEM_READ_WRITE>* Qn, bool dump){
     float rhouSum   = 0.0f;
     float rhovSum   = 0.0f;
     
-    for (size_t x = 2; x < Nx; x++) {
-        for (size_t y = 2; y < Ny; y++) {
+    for (size_t x = 2; x < Nx+2; x++) {
+        for (size_t y = 2; y < Ny+2; y++) {
             size_t k = ((Nx+4) * y + x)*4;
             
             rhoSum    += data[k];
@@ -386,23 +386,23 @@ void AppManager::debugDownload(CLUtils::MO<CL_MEM_READ_WRITE>* Qn, bool dump){
             maxrho = glm::max(maxrho,data[k]);
             minrho = glm::min(minrho,data[k]);
             
-            maxu = glm::max(maxu,data[k+1]/data[k]);
-            minu = glm::min(minu,data[k+1]/data[k]);
+            maxu = glm::max(maxu,data[k+1]);
+            minu = glm::min(minu,data[k+1]);
             
-            maxv = glm::max(maxv,data[k+2]/data[k]);
-            minv = glm::min(minv,data[k+2]/data[k]);
+            maxv = glm::max(maxv,data[k+2]);
+            minv = glm::min(minv,data[k+2]);
         }
     }
     
     std::cout << "Debug information @ s " << step << " t " << time << ": " << std::endl <<
     "Value Range: " << std::endl <<
-    "p range: [" << minrho << "," << maxrho << "]" << std::endl <<
-    "u range: [" << minu << "," << maxu << "]" << std::endl <<
-    "v range: [" << minv << "," << maxv << "]" << std::endl << std::endl <<
+    "h range: [" << minrho << "," << maxrho << "]" << std::endl <<
+    "hu range: [" << minu << "," << maxu << "]" << std::endl <<
+    "hv range: [" << minv << "," << maxv << "]" << std::endl << std::endl <<
     "Value summation" << std::endl <<
-    "p summation: " << rhoSum << std::endl <<
-    "pu summation: " << rhouSum << std::endl <<
-    "pv summation: " << rhovSum << std::endl << std::endl;
+    "h summation: " << rhoSum << std::endl <<
+    "hu summation: " << rhouSum << std::endl <<
+    "hv summation: " << rhovSum << std::endl << std::endl;
     
     if(!dump){
         return;
@@ -416,8 +416,7 @@ void AppManager::debugDownload(CLUtils::MO<CL_MEM_READ_WRITE>* Qn, bool dump){
             std::cout << "[" << x << "," << y << "](" <<
             data[k] << "," <<
             data[k+1] << "," <<
-            data[k+2] << "," <<
-            data[k+3] << "), " << std::endl;
+            data[k+2] << "), " << std::endl;
         }
         std::cout << "]";
     }

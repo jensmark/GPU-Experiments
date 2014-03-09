@@ -88,11 +88,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "GLAppNative/AppManager.cpp"
-            timestampString = "416071327.494593"
+            timestampString = "416086226.915468"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "433"
-            endingLineNumber = "433"
+            startingLineNumber = "432"
+            endingLineNumber = "432"
             landmarkName = "AppManager::createOpenGLContext()"
             landmarkType = "5">
          </BreakpointContent>
@@ -119,7 +119,7 @@
                   symbolName = "GLUtils::checkGLErrors(char const*, unsigned int)"
                   moduleName = "GLAppNative"
                   urlString = "file:///Users/jenskristoffer/Documents/experiments/GPU-Experiments/SW_opencl_highres/GLAppNative/GLUtils/GLUtils.hpp"
-                  timestampString = "416071711.63979"
+                  timestampString = "416087190.22876"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "28"
@@ -133,7 +133,7 @@
                   symbolName = "GLUtils::checkGLErrors(char const*, unsigned int)"
                   moduleName = "GLAppNative"
                   urlString = "file:///Users/jenskristoffer/Documents/experiments/GPU-Experiments/SW_opencl_highres/GLAppNative/GLUtils/GLUtils.hpp"
-                  timestampString = "416071711.640111"
+                  timestampString = "416087190.229116"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "28"
@@ -147,7 +147,7 @@
                   symbolName = "GLUtils::checkGLErrors(char const*, unsigned int)"
                   moduleName = "GLAppNative"
                   urlString = "file:///Users/jenskristoffer/Documents/experiments/GPU-Experiments/SW_opencl_highres/GLAppNative/GLUtils/GLUtils.hpp"
-                  timestampString = "416071711.640488"
+                  timestampString = "416087190.229451"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "28"
@@ -427,7 +427,7 @@
                   symbolName = "GameException::GameException(char const*, unsigned int, char const*)"
                   moduleName = "GLAppNative"
                   urlString = "file:///Users/jenskristoffer/Documents/experiments/GPU-Experiments/SW_opencl_highres/GLAppNative/GLUtils/GLException.h"
-                  timestampString = "416071711.640688"
+                  timestampString = "416087190.229832"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "13"
@@ -441,7 +441,7 @@
                   symbolName = "GameException::GameException(char const*, unsigned int, char const*)"
                   moduleName = "GLAppNative"
                   urlString = "file:///Users/jenskristoffer/Documents/experiments/GPU-Experiments/SW_opencl_highres/GLAppNative/GLUtils/GLException.h"
-                  timestampString = "416071711.640883"
+                  timestampString = "416087190.230171"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "11"
@@ -471,7 +471,7 @@
                   symbolName = "GameException::GameException(char const*, unsigned int, std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt;)"
                   moduleName = "GLAppNative"
                   urlString = "file:///Users/jenskristoffer/Documents/experiments/GPU-Experiments/SW_opencl_highres/GLAppNative/GLUtils/GLException.h"
-                  timestampString = "416071711.64117"
+                  timestampString = "416087190.230521"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "17"
@@ -485,7 +485,7 @@
                   symbolName = "GameException::GameException(char const*, unsigned int, std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt;)"
                   moduleName = "GLAppNative"
                   urlString = "file:///Users/jenskristoffer/Documents/experiments/GPU-Experiments/SW_opencl_highres/GLAppNative/GLUtils/GLException.h"
-                  timestampString = "416071711.641384"
+                  timestampString = "416087190.230794"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "15"
@@ -572,6 +572,22 @@
             startingLineNumber = "318"
             endingLineNumber = "318"
             landmarkName = "AppManager::render()"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "GLAppNative/AppManager.cpp"
+            timestampString = "416086226.915468"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "407"
+            endingLineNumber = "407"
+            landmarkName = "AppManager::debugDownload(CLUtils::MO&lt;CL_MEM_READ_WRITE&gt;* Qn, bool dump)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
