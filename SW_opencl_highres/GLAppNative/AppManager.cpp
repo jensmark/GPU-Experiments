@@ -317,8 +317,8 @@ void AppManager::render(){
         for (size_t y = 2; y < Ny; y++) {
             size_t k = ((Nx+4) * y + x)*4;
             
-            h_max = glm::max(h_max,data[k]);
-            h_min = glm::min(h_min,data[k]);
+            h_max = glm::max(h_max,(glm::abs(data[k+1]/data[k])+glm::abs(data[k+2]/data[k])));
+            h_min = glm::min(h_min,(glm::abs(data[k+1]/data[k])+glm::abs(data[k+2]/data[k])));
         }
     }
 

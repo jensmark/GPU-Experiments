@@ -196,8 +196,22 @@ __kernel void computeRK(__global float3* Q_in, __global float3* Qk_in, __global 
 float3 evaluateAt(float g, float2 pos){
     float3 value = (float3)(2.0f,0.0f,0.0f);
     
-    value.x = value.x + 1.4*exp(-pow((2.0f*(pos.x-0.5f)),2.0f)/(2.0f*pow(0.2f,2.0f))
-                            -pow((2.0f*(pos.y-0.5f)),2.0f)/(2.0f*pow(0.2f,2.0f)));
+    value.x = value.x + 0.2*exp(-pow((2.0f*(pos.x-0.3f)),2.0f)/(2.0f*pow(0.2f,2.0f))
+                            -pow((2.0f*(pos.y-0.3f)),2.0f)/(2.0f*pow(0.2f,2.0f)));
+    
+    value.x = value.x + 0.9*exp(-pow((2.0f*(pos.x-0.3f)),2.0f)/(2.0f*pow(0.1f,2.0f))
+                            -pow((2.0f*(pos.y-0.3f)),2.0f)/(2.0f*pow(0.1f,2.0f)));
+    
+    value.x = value.x + 0.6*exp(-pow((2.0f*(pos.x-0.7f)),2.0f)/(2.0f*pow(0.2f,2.0f))
+                                -pow((2.0f*(pos.y-0.3f)),2.0f)/(2.0f*pow(0.2f,2.0f)));
+    
+    value.x = value.x + 0.6*exp(-pow((2.0f*(pos.x-0.3f)),2.0f)/(2.0f*pow(0.2f,2.0f))
+                                -pow((2.0f*(pos.y-0.7f)),2.0f)/(2.0f*pow(0.2f,2.0f)));
+    
+    //value.y = value.y + value.x*exp(-pow((2.0f*(pos.x-0.3f)),2.0f)/(2.0f*pow(0.2f,2.0f))
+    //                                -pow((2.0f*(pos.y-0.3f)),2.0f)/(2.0f*pow(0.2f,2.0f)));
+    //value.z = value.z + value.x*exp(-pow((2.0f*(pos.x-0.3f)),2.0f)/(2.0f*pow(0.2f,2.0f))
+    //                                -pow((2.0f*(pos.y-0.3f)),2.0f)/(2.0f*pow(0.2f,2.0f)));
     
     return value;
 }
@@ -275,6 +289,11 @@ __kernel void eigenvalue(__global float3* Q_in, float g, __global float* E_out){
     unsigned int y = get_global_id(1);
     
     float3 Q    = fetch(Q_in, x, y,2);
+    if(Q.x <= 1.19e-07f){
+        storef(E_out, 0.0f, x, y,2);
+        return;
+    }
+    
     float2 uv   = Q.yz/Q.x;
     float c     = sqrt(g*Q.x);
     

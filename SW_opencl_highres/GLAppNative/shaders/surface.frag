@@ -48,7 +48,7 @@ void main() {
     
     vec4 c = texture(tex,uv);
     
-    float sp    = abs(c.y/c.x)+abs(c.z/c.x);
+    float sp    = 2.0*(abs(c.y/c.x)+abs(c.z/c.x));
     float t     = min((sp-h_minmax.x)/(h_minmax.y-h_minmax.x), 1.0);
 	vec4 hsv    = mix(hsv1,hsv2,t);
     
