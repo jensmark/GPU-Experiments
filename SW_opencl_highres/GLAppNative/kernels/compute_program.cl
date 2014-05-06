@@ -128,13 +128,23 @@ __kernel void computeNumericalFlux(__global float3* Q_in, __global float3* Sx_in
     float3 Sxp  = fetch(Sx_in,x+1,y,1);
     float3 Syp  = fetch(Sy_in,x+1,y,1);
     
-    store(F_out, xFlux(k, g, Q, Q1, Sx, Sy, Sxp, Syp), x, y, 1);
+    if(y == 0){
+        store(F_out, (float3)(0.0,0.0,0.0), x, y, 1);
+    }else{
+        store(F_out, xFlux(k, g, Q, Q1, Sx, Sy, Sxp, Syp), x, y, 1);
+    }
+    //store(F_out, (float)x+1, x, y, 2);
     
     Q1   = fetch(Q_in,x,y+1,1);
     Sxp  = fetch(Sx_in,x,y+1,1);
     Syp  = fetch(Sy_in,x,y+1,1);
     
-    store(G_out, yFlux(k, g, Q, Q1, Sx, Sy, Sxp, Syp), x, y, 1);
+    if(x == 0){
+        store(G_out, (float3)(0.0,0.0,0.0), x, y, 1);
+    }else{
+        store(G_out, yFlux(k, g, Q, Q1, Sx, Sy, Sxp, Syp), x, y, 1);
+    }
+    //store(G_out, (float)y+1, x, y, 2);
 }
 
 
@@ -185,6 +195,7 @@ __kernel void computeRK(__global float3* Q_in, __global float3* Qk_in, __global 
     
     float3 v    = c.x*Q+c.y*(Qk+dT*L);
     store(Q_out, v, x, y,2);
+    //store(Q_out, (float3)((x*y)+1,0.0,0.0), x, y,2);
 }
 
 
@@ -196,7 +207,7 @@ __kernel void computeRK(__global float3* Q_in, __global float3* Qk_in, __global 
 float3 evaluateAt(float g, float2 pos){
     float3 value = (float3)(2.0f,0.0f,0.0f);
     
-    value.x = value.x + 0.2*exp(-pow((2.0f*(pos.x-0.3f)),2.0f)/(2.0f*pow(0.2f,2.0f))
+    /*value.x = value.x + 0.2*exp(-pow((2.0f*(pos.x-0.3f)),2.0f)/(2.0f*pow(0.2f,2.0f))
                             -pow((2.0f*(pos.y-0.3f)),2.0f)/(2.0f*pow(0.2f,2.0f)));
     
     value.x = value.x + 0.9*exp(-pow((2.0f*(pos.x-0.3f)),2.0f)/(2.0f*pow(0.1f,2.0f))
@@ -207,11 +218,12 @@ float3 evaluateAt(float g, float2 pos){
     
     value.x = value.x + 0.6*exp(-pow((2.0f*(pos.x-0.3f)),2.0f)/(2.0f*pow(0.2f,2.0f))
                                 -pow((2.0f*(pos.y-0.7f)),2.0f)/(2.0f*pow(0.2f,2.0f)));
+     
+    */
     
-    //value.y = value.y + value.x*exp(-pow((2.0f*(pos.x-0.3f)),2.0f)/(2.0f*pow(0.2f,2.0f))
-    //                                -pow((2.0f*(pos.y-0.3f)),2.0f)/(2.0f*pow(0.2f,2.0f)));
-    //value.z = value.z + value.x*exp(-pow((2.0f*(pos.x-0.3f)),2.0f)/(2.0f*pow(0.2f,2.0f))
-    //                                -pow((2.0f*(pos.y-0.3f)),2.0f)/(2.0f*pow(0.2f,2.0f)));
+    if(pos.x < 0.5){
+        value.x = 2.5;
+    }
     
     return value;
 }
@@ -251,14 +263,18 @@ __kernel void setBoundsX(__global float3* Q){
     unsigned int k0 = (Nx0 * 0 + (i+2));
     unsigned int k1 = (Nx0 * 1 + (i+2));
     unsigned int k2 = (Nx0 * 2 + (i+2));
+    unsigned int k3 = (Nx0 * 3 + (i+2));
     //Q[k0] = Q[k1] = Q[k2];
-    Q[k0] = Q[k1] = (float3)(Q[k2].x,Q[k2].y,-Q[k2].z);
+    Q[k0] = (float3)(Q[k3].x,Q[k3].y,-Q[k3].z);
+    Q[k1] = (float3)(Q[k2].x,Q[k2].y,-Q[k2].z);
     
     k0 = (Nx0 * (Ny0-1) + (i+2));
     k1 = (Nx0 * (Ny0-2) + (i+2));
     k2 = (Nx0 * (Ny0-3) + (i+2));
+    k3 = (Nx0 * (Ny0-4) + (i+2));
     //Q[k0] = Q[k1] = Q[k2];
-    Q[k0] = Q[k1] = (float3)(Q[k2].x,Q[k2].y,-Q[k2].z);
+    Q[k0] = (float3)(Q[k3].x,Q[k3].y,-Q[k3].z);
+    Q[k1] = (float3)(Q[k2].x,Q[k2].y,-Q[k2].z);
 }
 __kernel void setBoundsY(__global float3* Q){
     unsigned int i = get_global_id(0);
@@ -269,14 +285,18 @@ __kernel void setBoundsY(__global float3* Q){
     unsigned int k0 = (Nx0 * (i+2) + 0);
     unsigned int k1 = (Nx0 * (i+2) + 1);
     unsigned int k2 = (Nx0 * (i+2) + 2);
+    unsigned int k3 = (Nx0 * (i+2) + 3);
     //Q[k0] = Q[k1] = Q[k2];
-    Q[k0] = Q[k1] = (float3)(Q[k2].x,-Q[k2].y,Q[k2].z);
+    Q[k0] = (float3)(Q[k3].x,-Q[k3].y,Q[k3].z);
+    Q[k1] = (float3)(Q[k2].x,-Q[k2].y,Q[k2].z);
     
     k0 = (Nx0 * (i+2) + (Nx0-1));
     k1 = (Nx0 * (i+2) + (Nx0-2));
     k2 = (Nx0 * (i+2) + (Nx0-3));
+    k3 = (Nx0 * (i+2) + (Nx0-4));
     //Q[k0] = Q[k1] = Q[k2];
-    Q[k0] = Q[k1] = (float3)(Q[k2].x,-Q[k2].y,Q[k2].z);
+    Q[k0] = (float3)(Q[k3].x,-Q[k3].y,Q[k3].z);
+    Q[k1] = (float3)(Q[k2].x,-Q[k2].y,Q[k2].z);
 }
 
 /****

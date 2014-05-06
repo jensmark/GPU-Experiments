@@ -160,9 +160,9 @@ float AppManager::computeDt(CLUtils::MO<CL_MEM_READ_WRITE>* Qn){
     
     float eig = -std::numeric_limits<float>().max();
     
-    for (size_t x = 2; x < Nx; x++) {
-        for (size_t y = 2; y < Ny; y++) {
-            size_t k = (Nx * y + x);
+    for (size_t x = 2; x < Nx+2; x++) {
+        for (size_t y = 2; y < Ny+2; y++) {
+            size_t k = ((Nx+4) * y + x);
             eig = glm::max(eig, data[k]);
         }
     }
@@ -201,7 +201,7 @@ void AppManager::evaluateFluxes(CLUtils::MO<CL_MEM_READ_WRITE>* Qn){
     err |= clSetKernelArg(evaluate_flux, 4, sizeof(cl_mem), &(F_set->getRef()));
     err |= clSetKernelArg(evaluate_flux, 5, sizeof(cl_mem), &(G_set->getRef()));
     
-    size_t global[] = {Nx+2,Ny+2};
+    size_t global[] = {Nx+1,Ny+1};
     err |= clEnqueueNDRangeKernel(context.queue, evaluate_flux, 2,
                                   NULL, global, NULL, 0, NULL, NULL);
     
@@ -265,7 +265,10 @@ void AppManager::copy(CLUtils::MO<CL_MEM_READ_WRITE>* src,
 }
 
 void AppManager::runKernel(){
+    setBoundary(Q_set[N_RK]);
     copy(Q_set[N_RK], Q_set[0]);
+    
+    dumpJSON("test");
     
     float dt = computeDt(Q_set[0]);
     
@@ -283,12 +286,11 @@ void AppManager::runKernel(){
         computeRK(n, dt);
     }
     
-    //debugDownload(Q_set[N_RK-1],true);
-    
     time += dt;
     step++;
     
-    debugDownload(Q_set[N_RK-1], false);
+    debugDownload(Q_set[N_RK], false);
+    //debugDownload(G_set, true);
     
     CHECK_GL_ERRORS();
 }
@@ -308,24 +310,25 @@ void AppManager::render(){
         THROW_EXCEPTION("Failed!");
     }
     
-    std::vector<cl_float> data((Nx+4)*(Ny+4)*4);
+    std::vector<cl_float4> data((Nx+4)*(Ny+4));
     clEnqueueReadBuffer(context.queue, Q_set[N_RK]->getRef(), CL_TRUE, 0,
                         (Nx+4)*(Nx+4)*sizeof(cl_float4), data.data(), 0, NULL, NULL);
     h_max    = -std::numeric_limits<float>().max();
     h_min    = std::numeric_limits<float>().max();
-    for (size_t x = 2; x < Nx; x++) {
-        for (size_t y = 2; y < Ny; y++) {
-            size_t k = ((Nx+4) * y + x)*4;
+    for (size_t x = 2; x < Nx+2; x++) {
+        for (size_t y = 2; y < Ny+2; y++) {
+            size_t k = ((Nx+4) * y + x);
             
-            h_max = glm::max(h_max,(glm::abs(data[k+1]/data[k])+glm::abs(data[k+2]/data[k])));
-            h_min = glm::min(h_min,(glm::abs(data[k+1]/data[k])+glm::abs(data[k+2]/data[k])));
+            h_max = glm::max(h_max,(glm::abs(data[k].y/data[k].x)+glm::abs(data[k].z/data[k].x)));
+            h_min = glm::min(h_min,(glm::abs(data[k].y/data[k].x)+glm::abs(data[k].z/data[k].x)));
         }
     }
-
+    std::cout << "h max: " << h_max << " h min: " << h_min << std::endl;
     
     clFinish(context.queue);
-    
-    glViewport(0, 0, window_width*2, window_height*2);
+    int width, height;
+    glfwGetFramebufferSize(window,&width,&height);
+    glViewport(0, 0, width, height);
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     visualize->use();
     
@@ -355,6 +358,85 @@ void AppManager::render(){
     
     glFinish();
     CHECK_GL_ERRORS();
+}
+
+void AppManager::dumpJSON(std::string filename){
+    std::vector<cl_float> q_data((Nx+4)*(Ny+4)*4);
+    std::vector<cl_float> f_data((Nx+4)*(Ny+4)*4);
+    std::vector<cl_float> g_data((Nx+4)*(Ny+4)*4);
+    std::vector<cl_float> sx_data((Nx+4)*(Ny+4)*4);
+    std::vector<cl_float> sy_data((Nx+4)*(Ny+4)*4);
+    
+    
+    clEnqueueReadBuffer(context.queue, Q_set[N_RK]->getRef(), CL_TRUE, 0,
+                        (Nx+4)*(Nx+4)*sizeof(cl_float4), q_data.data(), 0, NULL, NULL);
+    clEnqueueReadBuffer(context.queue, F_set->getRef(), CL_TRUE, 0,
+                        (Nx+4)*(Nx+4)*sizeof(cl_float4), f_data.data(), 0, NULL, NULL);
+    clEnqueueReadBuffer(context.queue, G_set->getRef(), CL_TRUE, 0,
+                        (Nx+4)*(Nx+4)*sizeof(cl_float4), g_data.data(), 0, NULL, NULL);
+    clEnqueueReadBuffer(context.queue, Sx_set->getRef(), CL_TRUE, 0,
+                        (Nx+4)*(Nx+4)*sizeof(cl_float4), sx_data.data(), 0, NULL, NULL);
+    clEnqueueReadBuffer(context.queue, Sy_set->getRef(), CL_TRUE, 0,
+                        (Nx+4)*(Nx+4)*sizeof(cl_float4), sy_data.data(), 0, NULL, NULL);
+    
+    std::ofstream output;
+    std::stringstream file;
+    file << filename << "_" << step << ".json";
+    
+    output.unsetf ( std::ios::floatfield );
+    output.precision(4);
+    output.setf( std::ios::fixed, std:: ios::floatfield );
+    
+    output.open(file.str());
+    output << "{";
+    output << "\"frame\":" << step << ","
+           << "\"time\":" << time << "," << std::endl;
+    
+    output << "\"cells\":[" << std::endl;
+    for (int y = Ny+3; y >= 0; y--) {
+        output << "[";
+        for (int x = 0; x < Nx+4; x++) {
+            output << "{";
+            size_t k = ((Nx+4) * y + x)*4;
+            
+            size_t sk = ((Nx+4) * (glm::max((y-1),0)) + x)*4;
+            size_t wk = ((Nx+4) * y + (glm::max((x-1),0)))*4;
+            
+            float h = q_data[k];
+            
+            
+            output << "\"type\":";
+            if(y <= 1 || y >= Ny+2){
+                output << "\"G\"";
+            }else if(x <= 1 || x >= Nx+2){
+                output << "\"G\"";
+            }else{
+                output << "\"I\"";
+            }
+            output << ",";
+            output << "\"h\":" << h << ",";
+            output << "\"derived\":{\"Sx\":" << std::setw(4) << sx_data[k] <<
+                ",\"Sy\":" << std::setw(4) << sy_data[k] << "},";
+            output << "\"flux\":{\"N\":" << std::setw(4) << g_data[k] << ",\"S\":"
+                << std::setw(4) << g_data[sk]
+                    << ",\"E\":" << std::setw(4) << f_data[k] << ",\"W\":"
+                << std::setw(4) << f_data[wk] << "}";
+            output << "}";
+            if(x != Nx+3){
+                output << ",\t\t";
+            }
+        }
+        output << "]";
+        if(y != 0){
+            output << ",";
+        }
+        output << std::endl;
+    }
+    output << "]";
+    
+    output << "}";
+    output.unsetf ( std::ios::floatfield );
+    output.close();
 }
 
 void AppManager::debugDownload(CLUtils::MO<CL_MEM_READ_WRITE>* Qn, bool dump){
@@ -412,7 +494,7 @@ void AppManager::debugDownload(CLUtils::MO<CL_MEM_READ_WRITE>* Qn, bool dump){
     for (size_t y = 0; y < Ny+4; y++) {
         std::cout << "[" << std::endl;
         for (size_t x = 0; x < Nx+4; x++) {
-            size_t k = ((Nx+4) * y + x)*3;
+            size_t k = ((Nx+4) * y + x)*4;
             std::cout << "[" << x << "," << y << "](" <<
             data[k] << "," <<
             data[k+1] << "," <<
@@ -493,7 +575,12 @@ void AppManager::createProgram(){
 }
 
 void AppManager::createVAO(){
-    createTriangleStrip(256,256,surface_vert,surface_ind);
+    float r = (float)Nx/(float)Ny;
+    float d = glm::sqrt((float)(256*256+256*256));
+    int w = (int)glm::max(d/(glm::sqrt(r*r+1.0))+1.0,10.0);
+    int h = (int)glm::max(d/(glm::sqrt((1.0/(r*r))+1.0))+1.0,10.0);
+    
+    createTriangleStrip(h,w,surface_vert,surface_ind);
     
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);

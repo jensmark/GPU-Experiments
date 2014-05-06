@@ -97,6 +97,11 @@ private:
 	void render();
     
     /**
+     * Dumps simulation results to a new JSON files
+     */
+    void dumpJSON(std::string filename);
+    
+    /**
      * Download and dump debug information about a dataset
      */
     void debugDownload(CLUtils::MO<CL_MEM_READ_WRITE>* Qn, bool dump = false);
@@ -157,8 +162,8 @@ private:
     
 private:
     
-    static const unsigned int Nx            = 512;
-    static const unsigned int Ny            = 512;
+    static const unsigned int Nx            = 5;
+    static const unsigned int Ny            = 4;
     
     static const unsigned int N_RK          = 3;
     
