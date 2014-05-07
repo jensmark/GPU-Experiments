@@ -11,6 +11,7 @@
 
 #include <string>
 #include <vector>
+#include <glm/glm.hpp>
 
 struct SimDetail{
     double sim_time;
@@ -49,6 +50,21 @@ public:
      * Get the data as std vector
      */
     virtual std::vector<float> getData() = 0;
+    
+    /**
+     * Return the size of the grid
+     */
+    virtual glm::ivec2 getGridSize() = 0;
+    
+    /**
+     * Return grid delta x and y
+     */
+    virtual glm::vec2 getDeltaXY() = 0;
+    
+    /**
+     * Get current sim time
+     */
+    virtual float getTime() = 0;
 };
 
 #endif

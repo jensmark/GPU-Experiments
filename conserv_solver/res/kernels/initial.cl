@@ -39,10 +39,10 @@ void storef(__global float* array, float value, unsigned int x, unsigned int y, 
  *
  ****/
 float4 dambreakAt(float2 pos){
-    float4 value = (float4)(2.0f,0.0f,0.0f,0.0f);
+    float4 value = (float4)(1.0f,0.0f,0.0f,0.0f);
     
     if(pos.x < 0.5f){
-        value.x = 2.5f;
+        value.x = 1.5f;
     }
     
     return value;

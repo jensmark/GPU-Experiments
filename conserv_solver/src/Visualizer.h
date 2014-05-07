@@ -14,13 +14,21 @@
 #include "GLFW/glfw3.h"
 #include "glm/glm.hpp"
 #include "VirtualTrackball.h"
+#include "SimulatorBase.h"
+
+#include <IL/IL.h>
+#include <IL/ILU.h>
+
+enum Technique{
+    UNKNOWN_TECHNIQUE, GEOMETRY, TEXTURE
+};
 
 class Visualizer{
 public:
     /**
 	 * Constructor
 	 */
-	Visualizer(unsigned int width,unsigned int height);
+	Visualizer(Technique tech, unsigned int width,unsigned int height);
     
 	/**
 	 * Destructor
@@ -35,14 +43,29 @@ public:
     /**
 	 * Function that handles rendering into the OpenGL context
 	 */
-	void render(GLuint tex);
+	void render();
     
     /**
      * Return window handle
      */
     GLFWwindow* getWindow(){return window;}
     
+    /**
+     * Set pointer to simulator
+     */
+    void setSimulator(SimulatorBase* base){this->sim = base;}
+    
 private:
+    
+    /**
+	 * Function that handles rendering into the OpenGL context
+	 */
+    void renderGeometry();
+    
+    /**
+	 * Function that handles rendering into the OpenGL context
+	 */
+    void renderTexture();
     
     /**
 	 * Creates the OpenGL context using GLFW
@@ -65,6 +88,11 @@ private:
 	 * Creates vertex array objects
 	 */
 	void createVAO();
+    
+    /**
+     * Save image
+     */
+    void save();
     
     /**
      * Creates a NxNy size triangle strip grid
@@ -106,6 +134,7 @@ private:
     GLUtils::BO<GL_ARRAY_BUFFER>* surface_vert;
     GLUtils::BO<GL_ELEMENT_ARRAY_BUFFER>* surface_ind;
     
+    
     unsigned int restart_token;
     unsigned int indices_count;
 
@@ -118,6 +147,12 @@ private:
 	} camera;
     
     static VirtualTrackball trackball;
+    
+    SimulatorBase* sim;
+    
+    Technique technique;
+    
+    static bool takeScreenshot;
 };
 
 #endif

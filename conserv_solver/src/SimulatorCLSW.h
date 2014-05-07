@@ -45,6 +45,22 @@ public:
      * Get the data as std vector
      */
     virtual std::vector<float> getData();
+    
+    /**
+     * Return the size of the grid
+     */
+    virtual glm::ivec2 getGridSize(){return glm::ivec2(Nx,Ny);}
+    
+    /**
+     * Return grid delta x and y
+     */
+    virtual glm::vec2 getDeltaXY(){return glm::vec2(1.0f/(float)Nx,1.0f/(float)Ny);}
+    
+    /**
+     * Returns time
+     */
+    virtual float getTime(){return time;}
+    
 private:
     /**
      * Sets up the buffers for us

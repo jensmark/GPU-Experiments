@@ -5,7 +5,7 @@ in vec2 uv;
 out vec4 color;
 
 uniform sampler2D tex;
-//uniform vec2 dxy = 0.00001;
+uniform vec2 dXY;
 //uniform vec2 h_minmax;
 
 
@@ -34,16 +34,14 @@ vec4 HSV2RGB(vec4 hsva) {
 }
 
 void main() {
-    
-    vec2 dxy = vec2(0.00001,0.00001);
-    vec2 h_minmax = vec2(0.0,5.0);
+    vec2 h_minmax = vec2(0.0,1.0);
     
     float n     = textureOffset(tex,uv,ivec2(0,1)).x;
     float s     = textureOffset(tex,uv,ivec2(0,-1)).x;
     float e     = textureOffset(tex,uv,ivec2(1,0)).x;
     float w 	= textureOffset(tex,uv,ivec2(-1,0)).x;
-    vec3 a      = vec3(2.0*dxy.x, (e-w), 0.0);
-    vec3 b      = vec3(0.0, (n-s), 2.0*dxy.y);
+    vec3 a      = vec3(2.0*dXY.x, (e-w), 0.0);
+    vec3 b      = vec3(0.0, (n-s), 2.0*dXY.y);
     vec3 norm 	= normalize(cross(b,a));
     
     const vec4 hsv1 = vec4(2.09, 1, 1, 1);

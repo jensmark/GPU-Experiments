@@ -27,7 +27,7 @@ AppManager::~AppManager(){
 void AppManager::init(size_t Nx, size_t Ny, Solver type, const char* dev){
     std::cout << "Initializing simulating parameters" << std::endl;
     
-    visualizer  = new Visualizer(window_width,window_height);
+    visualizer  = new Visualizer(GEOMETRY,window_width,window_height);
     visualizer->init();
     
     this->type = type;
@@ -61,6 +61,8 @@ void AppManager::init(size_t Nx, size_t Ny, Solver type, const char* dev){
     
     simulator->init(Nx,Ny,"");
     
+    visualizer->setSimulator(simulator);
+    
     results.Nx = Nx;
     results.Ny = Ny;
     
@@ -80,7 +82,7 @@ void AppManager::begin(size_t N, float T){
         glfwPollEvents();
         
         SimDetail details = simulator->simulate();
-        visualizer->render(simulator->getTexture());
+        visualizer->render();
         
         results.total_sim_time += details.sim_time;
         results.time = details.time;
