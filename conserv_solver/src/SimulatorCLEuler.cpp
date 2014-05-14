@@ -51,7 +51,7 @@ void SimulatorCLEuler::init(size_t Nx, size_t Ny, std::string initialKernel){
     std::cout << "Simulating Euler using OpenCL kernels on device: ";
     CLUtils::printDeviceInfo(context.device);
     
-    createKernels("shockbubble");
+    createKernels("riemann");
     createBuffers();
     
     applyInitial();

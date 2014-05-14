@@ -43,17 +43,17 @@ __kernel void setBoundsX(__global float4* Q){
     unsigned int k1 = (Nx0 * 1 + (i+2));
     unsigned int k2 = (Nx0 * 2 + (i+2));
     unsigned int k3 = (Nx0 * 3 + (i+2));
-    //Q[k0] = Q[k1] = Q[k2];
-    Q[k0] = (float4)(Q[k3].x,Q[k3].y,-Q[k3].z,Q[k3].w);
-    Q[k1] = (float4)(Q[k2].x,Q[k2].y,-Q[k2].z,Q[k2].w);
+    Q[k0] = Q[k1] = Q[k2];
+    //Q[k0] = (float4)(Q[k3].x,Q[k3].y,-Q[k3].z,Q[k3].w);
+    //Q[k1] = (float4)(Q[k2].x,Q[k2].y,-Q[k2].z,Q[k2].w);
     
     k0 = (Nx0 * (Ny0-1) + (i+2));
     k1 = (Nx0 * (Ny0-2) + (i+2));
     k2 = (Nx0 * (Ny0-3) + (i+2));
     k3 = (Nx0 * (Ny0-4) + (i+2));
-    //Q[k0] = Q[k1] = Q[k2];
-    Q[k0] = (float4)(Q[k3].x,Q[k3].y,-Q[k3].z,Q[k3].w);
-    Q[k1] = (float4)(Q[k2].x,Q[k2].y,-Q[k2].z,Q[k2].w);
+    Q[k0] = Q[k1] = Q[k2];
+    //Q[k0] = (float4)(Q[k3].x,Q[k3].y,-Q[k3].z,Q[k3].w);
+    //Q[k1] = (float4)(Q[k2].x,Q[k2].y,-Q[k2].z,Q[k2].w);
 }
 __kernel void setBoundsY(__global float4* Q){
     unsigned int i = get_global_id(0);
@@ -65,15 +65,15 @@ __kernel void setBoundsY(__global float4* Q){
     unsigned int k1 = (Nx0 * (i+2) + 1);
     unsigned int k2 = (Nx0 * (i+2) + 2);
     unsigned int k3 = (Nx0 * (i+2) + 3);
-    //Q[k0] = Q[k1] = Q[k2];
-    Q[k0] = (float4)(Q[k3].x,-Q[k3].y,Q[k3].z,Q[k3].w);
-    Q[k1] = (float4)(Q[k2].x,-Q[k2].y,Q[k2].z,Q[k2].w);
+    Q[k0] = Q[k1] = Q[k2];
+    //Q[k0] = (float4)(Q[k3].x,-Q[k3].y,Q[k3].z,Q[k3].w);
+    //Q[k1] = (float4)(Q[k2].x,-Q[k2].y,Q[k2].z,Q[k2].w);
     
     k0 = (Nx0 * (i+2) + (Nx0-1));
     k1 = (Nx0 * (i+2) + (Nx0-2));
     k2 = (Nx0 * (i+2) + (Nx0-3));
     k3 = (Nx0 * (i+2) + (Nx0-4));
-    //Q[k0] = Q[k1] = Q[k2];
-    Q[k0] = (float4)(Q[k3].x,-Q[k3].y,Q[k3].z,Q[k3].w);
-    Q[k1] = (float4)(Q[k2].x,-Q[k2].y,Q[k2].z,Q[k2].w);
+    Q[k0] = Q[k1] = Q[k2];
+    //Q[k0] = (float4)(Q[k3].x,-Q[k3].y,Q[k3].z,Q[k3].w);
+    //Q[k1] = (float4)(Q[k2].x,-Q[k2].y,Q[k2].z,Q[k2].w);
 }

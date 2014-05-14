@@ -27,7 +27,7 @@ AppManager::~AppManager(){
 void AppManager::init(size_t Nx, size_t Ny, Solver type, const char* dev){
     std::cout << "Initializing simulating parameters" << std::endl;
     
-    visualizer  = new Visualizer(GEOMETRY,window_width,window_height);
+    visualizer  = new Visualizer(TEXTURE,window_width,window_height);
     visualizer->init();
     
     this->type = type;
