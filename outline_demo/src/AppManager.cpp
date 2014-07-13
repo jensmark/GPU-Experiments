@@ -25,12 +25,16 @@ AppManager::AppManager(){
 AppManager::~AppManager(){
 }
 
-void AppManager::init(){
+void AppManager::init(std::string model){
     /* Initialize the library */
     if (glfwInit() != GL_TRUE) {
         THROW_EXCEPTION("Failed to initialize GLFW");
     }
     glfwSetErrorCallback(error_callback);
+    
+    std::stringstream ss;
+    ss << "res/models/" << model << ".obj";
+    filepath = ss.str();
     
     createOpenGLContext();
     
@@ -300,7 +304,7 @@ void AppManager::createVAO(){
     glGenVertexArrays(2, &vao[0]);
 	glBindVertexArray(vao[0]);
     
-	model.reset(new Model("res/models/Bambo_House.obj", false));
+	model.reset(new Model(filepath, false));
 	model->getVertices()->bind();
 	deferred->setAttributePointer("position", 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8);
     

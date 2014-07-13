@@ -44,7 +44,7 @@ public:
 	 * Initializes the game, including the OpenGL context
 	 * and data required
 	 */
-	void init();
+	void init(std::string model);
     
 	/**
 	 * The main loop of the app. Runs the main loop
@@ -136,6 +136,8 @@ private:
 	} camera;
     
     static VirtualTrackball trackball;
+    
+    std::string filepath;
     
     GLuint vao[2];
     std::shared_ptr<Model> model;

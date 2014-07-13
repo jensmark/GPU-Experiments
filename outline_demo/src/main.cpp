@@ -11,11 +11,12 @@
 #include <stdlib.h>
 #include "optionparser.h"
 
-enum  optionIndex {UNKNOWN, HELP};
+enum  optionIndex {UNKNOWN, HELP, MODEL};
 
 const option::Descriptor usage[] =
 {
-    {HELP,      0,"", "help",   option::Arg::None,        "  --help  \tPrint usage and exit.\n" },
+    {HELP,      0,"", "help",   option::Arg::None,        "\t--help  \tPrint usage and exit.\n\tRequired:" },
+    {MODEL,      0,"", "model",   option::Arg::Optional,      "\t--model=bunny  \tSet the model to load and render." },
     
     {UNKNOWN, 0,"" ,  ""   ,option::Arg::None, "" },
     {0,0,0,0,0,0}
@@ -32,7 +33,7 @@ int main(int argc, const char * argv[])
     if (parse.error())
         return 1;
     
-    if (options[HELP]) {
+    if (options[HELP] || argc == 0) {
         option::printUsage(std::cout, usage);
         return 0;
     }
@@ -44,7 +45,7 @@ int main(int argc, const char * argv[])
     AppManager* manager = NULL;
     try {
         manager = new AppManager();
-        manager->init();
+        manager->init(options[MODEL].arg);
         manager->begin();
         
     } catch (std::exception& e) {
