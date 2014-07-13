@@ -17,6 +17,7 @@
 #include "Sphere.h"
 #include "Cube.h"
 #include "HZMap.h"
+#include "Timer.hpp"
 
 #include <IL/IL.h>
 #include <IL/ILU.h>
@@ -107,6 +108,9 @@ private:
     // GLFW window handle
     GLFWwindow* window;
     
+    Timer timer;
+    Timer occlusion_timer;
+    
     static const unsigned int window_width  = 800;
 	static const unsigned int window_height = 600;
     
@@ -134,6 +138,12 @@ private:
     GLUtils::BO<GL_ARRAY_BUFFER>* transFeedback;
     
     ScreenQuad* debug_quad;
+    
+    static size_t skipped;
+    static float fps;
+    static float occlusion_fps;
+    
+    static bool enableCulling;
 };
 
 #endif

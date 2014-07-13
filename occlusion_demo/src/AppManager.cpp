@@ -15,6 +15,10 @@
 
 // Static decleration
 VirtualTrackball AppManager::trackball;
+bool AppManager::enableCulling = true;
+size_t AppManager::skipped = 0;
+float AppManager::fps = 0.0f;
+float AppManager::occlusion_fps = 0.0f;
 
 AppManager::AppManager(){
 }
@@ -47,7 +51,7 @@ void AppManager::init(){
     
     
     std::vector<glm::vec3> centers;
-    size_t grid_size = 20;
+    size_t grid_size = 16;
     for (size_t x = 0; x <= grid_size; x++) {
         if (x == grid_size/2)
             continue;
@@ -66,20 +70,20 @@ void AppManager::init(){
                            -((float)z/spacing)+((float)grid_size/2.0f)/spacing);
                 centers.push_back(position);
                 
-                Sphere* model = new Sphere(phong, 8, 1.0, position);
+                Sphere* model = new Sphere(phong, 50, 1.0, position);
                 spheres.push_back(model);
             }
         }
     }
     
     planes.push_back(
-            new Cube(phong, glm::vec3(0.0f), glm::quat(), glm::vec3(80.0f, 80.0f, 1.0f))
+            new Cube(phong, glm::vec3(0.0f), glm::quat(), glm::vec3(60.0f, 60.0f, 1.0f))
     );
     planes.push_back(
-            new Cube(phong, glm::vec3(0.0f), glm::quat(), glm::vec3(80.0f, 1.0f, 80.0f))
+            new Cube(phong, glm::vec3(0.0f), glm::quat(), glm::vec3(60.0f, 1.0f, 60.0f))
     );
     planes.push_back(
-            new Cube(phong, glm::vec3(0.0f), glm::quat(), glm::vec3(1.0f, 80.0f, 80.0f))
+            new Cube(phong, glm::vec3(0.0f), glm::quat(), glm::vec3(1.0f, 60.0f, 60.0f))
     );
 
     hzmap = new HZMap(window_width, window_height);
@@ -121,9 +125,15 @@ void AppManager::begin(){
 }
 
 void AppManager::render(){
+    timer.restart();
+    
     glm::mat4 view_matrix = camera.view*trackball.getTransform();
-  
-    checkOcclusion(view_matrix);
+    
+    occlusion_timer.restart();
+    if (enableCulling) {
+        checkOcclusion(view_matrix);
+    }
+    occlusion_fps = (float)occlusion_timer.elapsed();
     
     // Find actual screen width and height
     int width, height;
@@ -138,29 +148,27 @@ void AppManager::render(){
     // Render scene
     phong->use();
     glUniform3fv(phong->getUniform("ambient"),1,glm::value_ptr(glm::vec3(1.0f,0.0f,0.0f)));
+    
+    skipped = 0;
     for (size_t i = 0; i < spheres.size(); i++) {
-        if (feedback[i] == 1) {
+        if (enableCulling) {
+            if (feedback[i] == 1) {
+                spheres.at(i)->render(phong, camera.projection, view_matrix);
+            }else{
+                skipped++;
+            }
+        }else{
             spheres.at(i)->render(phong, camera.projection, view_matrix);
         }
     }
     
-    
-    //glEnable(GL_BLEND);
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     phong->use();
     glUniform3fv(phong->getUniform("ambient"),1,glm::value_ptr(glm::vec3(0.0f,0.0f,1.0f)));
-    //glUniform1f(phong->getUniform("transparency"),0.5f);
-    //glCullFace(GL_BACK);
     for (size_t i = 0; i < planes.size(); i++) {
         planes.at(i)->render(phong, camera.projection, view_matrix);
     }
-    //glCullFace(GL_FRONT);
-    //for (size_t i = 0; i < planes.size(); i++) {
-    //    planes.at(i)->render(phong, camera.projection, view_matrix);
-    //}
-    //glCullFace(GL_BACK);
-    //glDisable(GL_BLEND);
     
+    fps = 1.0f / timer.elapsed();
     
     glFinish();
     CHECK_GL_ERRORS();
@@ -295,6 +303,23 @@ void AppManager::createProgram(){
 void AppManager::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
+    if (key == GLFW_KEY_1 && action == GLFW_PRESS){
+        std::cout << "Culling Enabled" << std::endl;
+        enableCulling = true;
+    }
+    if (key == GLFW_KEY_2 && action == GLFW_PRESS){
+        std::cout << "Culling Disabled" << std::endl;
+        enableCulling = false;
+    }
+    if (key == GLFW_KEY_3 && action == GLFW_PRESS){
+        std::cout << "Geometry culled last frame: " << skipped << std::endl;
+    }
+    if (key == GLFW_KEY_4 && action == GLFW_PRESS){
+        std::cout << "FPS: " << fps << std::endl;
+    }
+    if (key == GLFW_KEY_5 && action == GLFW_PRESS){
+        std::cout << "Occlusion timer: " << occlusion_fps << std::endl;
+    }
 }
 
 void AppManager::mouse_callback(GLFWwindow* window, int button, int action, int mods){
